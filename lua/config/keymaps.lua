@@ -8,7 +8,6 @@ local opts = { noremap = true, silent = true }
 
 vim.keymap.set("n", "<leader>qq", "<cmd>qa!<CR>", { desc = "Quit all" })
 
-
 -- Don't yank on x
 vim.keymap.set("n", "x", '"_x', opts)
 
@@ -17,6 +16,9 @@ vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move focus to the left window" 
 vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move focus to the lower window" })
 vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move focus to the upper window" })
 vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move focus to the right window" })
+
+-- Hop
+vim.keymap.set("n", "<leader>r", "<cmd>HopWord<CR>", { desc = "Hop Word" })
 
 -- Telescope
 local builtin = require("telescope.builtin")
@@ -108,11 +110,21 @@ vim.keymap.set("n", "<leader>tr", vim.lsp.buf.rename, opts)
 -- vim.keymap.set("n", "<leader>R", "<cmd>OverseerToggle<CR>", { desc = "Toggle task list" })
 
 -- DAP
-vim.keymap.set("n", "<F5>", function() require("dap").continue() end, { desc = "Continue" })
-vim.keymap.set('n', '<F9>', function() require("dap").toggle_breakpoint() end, { desc = "Toggle Breakpoint" })
-vim.keymap.set("n", "<F10>", function() require("dap").step_over() end, { desc = "Step Over" })
-vim.keymap.set("n", "<F11>", function() require("dap").step_into() end, { desc = "Step Into" })
-vim.keymap.set("n", "<S-F11>", function() require("dap").step_out() end, { desc = "Step Out" })
+vim.keymap.set("n", "<F5>", function()
+  require("dap").continue()
+end, { desc = "Continue" })
+vim.keymap.set("n", "<F9>", function()
+  require("dap").toggle_breakpoint()
+end, { desc = "Toggle Breakpoint" })
+vim.keymap.set("n", "<F10>", function()
+  require("dap").step_over()
+end, { desc = "Step Over" })
+vim.keymap.set("n", "<F11>", function()
+  require("dap").step_into()
+end, { desc = "Step Into" })
+vim.keymap.set("n", "<S-F11>", function()
+  require("dap").step_out()
+end, { desc = "Step Out" })
 
 -- Testing
 -- vim.keymap.set("n", "<leader>tt", function()
@@ -158,9 +170,7 @@ vim.keymap.set("n", "<leader>tt", function()
 
   if filepath:match("/src/") then
     -- src → tests へ変換
-    target_path = filepath
-      :gsub("/src/", "/tests/")
-      :gsub("([/\\])([%w_%-]+)%.py$", "%1test_%2.py")
+    target_path = filepath:gsub("/src/", "/tests/"):gsub("([/\\])([%w_%-]+)%.py$", "%1test_%2.py")
   else
     -- 同じディレクトリに test_*.py を作成
     local dir = vim.fn.fnamemodify(filepath, ":h")
