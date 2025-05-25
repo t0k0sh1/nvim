@@ -45,6 +45,50 @@ keymap.set("n", "N", "Nzz", opts)
 keymap.set("n", "<ESC>", ":nohlsearch<Bar>:echo<CR>", opts)
 
 -- Telescope
+keymap.set(
+  "n",
+  "<leader>,",
+  "<cmd>Telescope buffers sort_mru=true sort_lastused=true<cr>",
+  { desc = "Switch Buffer", noremap = true }
+)
+keymap.set("n", "<leader><space>", LazyVim.pick("files"), { desc = "Find Files (Root Dir)", noremap = true })
+keymap.set("n", "<leader>/", LazyVim.pick("live_grep"), { desc = "Grep (Root Dir)", noremap = true })
+-- find
+keymap.set(
+  "n",
+  "<leader>fb",
+  "<cmd>Telescope buffers sort_mru=true sort_lastused=true ignore_current_buffer=true<cr>",
+  { desc = "Buffers", noremap = true }
+)
+keymap.set("n", "<leader>ff", LazyVim.pick("files"), { desc = "Find Files (Root Dir)", noremap = true })
+keymap.set("n", "<leader>fF", LazyVim.pick("files", { root = false }), { desc = "Find Files (cwd)", noremap = true })
+keymap.set("n", "<leader>fg", "<cmd>Telescope git_files<cr>", { desc = "Find Files (git-files)", noremap = true })
+keymap.set("n", "<leader>fr", "<cmd>Telescope oldfiles<cr>", { desc = "Find Recent", noremap = true })
+keymap.set(
+  "n",
+  "<leader>fR",
+  LazyVim.pick("oldfiles", { cwd = vim.uv.cwd() }),
+  { desc = "Find Recent (cwd)", noremap = true }
+)
+-- git
+keymap.set("n", "<leader>gc", "<cmd>Telescope git_commit<cr>", { desc = "Search Commits", noremap = true })
+keymap.set("n", "<leader>gs", "<cmd>Telescope git_status<cr>", { desc = "Search Status", noremap = true })
+
+--search
+keymap.set("n", "<leader>sb", "<cmd>Telescope current_buffer_fuzzy_find", { desc = "Search Buffer", noremap = true })
+keymap.set("n", "<leader>sg", LazyVim.pick("live_grep"), { desc = "Grep (Root Dir)", noremap = true })
+keymap.set("n", "<leader>sG", LazyVim.pick("live_grep", { root = false }), { desc = "Grep (cwd)", noremap = true })
+keymap.set(
+  "n",
+  "<leader>sd",
+  "<cmd>Telescope diagnostics bufnr=0<cr>",
+  { desc = "Document Diagnostics", noremap = true }
+)
+keymap.set("n", "<leader>sD", "<cmd>Telescope diagnostics<cr>", { desc = "Workspace Diagnostics", noremap = true })
+keymap.set("n", "<leader>ss", function()
+  local builtin = require("telescope.builtin")
+  builtin.treesitter()
+end, { desc = "Lists Function names, variables, from Treesitter", noremap = true })
 -- Lists files in your current working directory, respects .gitignore
 keymap.set("n", ";f", function()
   local builtin = require("telescope.builtin")
@@ -54,26 +98,7 @@ keymap.set("n", ";f", function()
     cwd = vim.fn.getcwd(),
   })
 end, opts)
--- Search for a string in your current working directory and get results live as you type, respects .gitignore
-keymap.set("n", ";r", function()
-  local builtin = require("telescope.builtin")
-  -- builtin.live_grep()
-  builtin.current_buffer_fuzzy_find()
-end, opts)
--- Lists Diagnostics for all open buffers or a specific buffer
-keymap.set("n", ";e", function()
-  local builtin = require("telescope.builtin")
-  builtin.diagnostics()
-end, opts)
--- Lists Function names, variables, from Treesitter
-keymap.set("n", ";s", function()
-  local builtin = require("telescope.builtin")
-  builtin.treesitter()
-end, opts)
-keymap.set("n", ";;", function()
-  local builtin = require("telescope.builtin")
-  builtin.resume()
-end, opts)
+keymap.set("n", "<leader>sR", "<cmd>Telescope resume<cr>", { desc = "Search Resume", noremap = true })
 
 -- NeoTree
 keymap.set("n", "<leader>t", ":Neotree reveal<CR>", opts)
