@@ -22,7 +22,7 @@ local specs = {
     name = "telescope-fzf-native",
   },
   { src = "https://github.com/nvim-treesitter/nvim-treesitter", name = "treesitter" },
-  { src = "https://github.com/supermaven-inc/supermaven-nvim", name = "supermaven" },
+  { src = "https://github.com/milanglacier/minuet-ai.nvim", name = "minuet" },
   { src = "https://github.com/rachartier/tiny-cmdline.nvim", name = "tiny-cmdline" },
 }
 

@@ -31,7 +31,7 @@ require("plugins.terminal")
 require("plugins.hop")
 
 -- load coding plugins
-require("plugins.supermaven")
+require("plugins.minuet")
 require("plugins.lsp")
 require("plugins.conform")
 
