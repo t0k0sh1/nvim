@@ -46,3 +46,16 @@ local fzf = vim.pack.get({ "telescope-fzf-native" })[1]
 if fzf and vim.fn.empty(vim.fn.glob(fzf.path .. "/build/libfzf.*")) == 1 then
   build_fzf(fzf.path)
 end
+
+vim.api.nvim_create_user_command("PackUpdate", function(opts)
+  local names = #opts.fargs > 0 and opts.fargs or nil
+  vim.pack.update(names, { force = opts.bang })
+end, {
+  nargs = "*",
+  bang = true,
+  desc = "Update plugins managed by vim.pack",
+})
+
+vim.cmd([[
+  cnoreabbrev <expr> packupdate getcmdtype() ==# ':' && getcmdline() ==# 'packupdate' ? 'PackUpdate' : 'packupdate'
+]])
