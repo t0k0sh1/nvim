@@ -1,0 +1,27 @@
+{
+  "name": "Neovim Python (uv)",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "PYTHON_VERSION": "3.13",
+      "UV_VERSION": "0.11.29",
+      "NVIM_VERSION": "v0.12.4"
+    }
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace",
+  "mounts": [
+    "source=${localEnv:HOME}/.config/nvim,target=/home/vscode/.config/nvim,type=bind,consistency=cached",
+    "source=nvim-python-example-venv,target=/home/vscode/.venv,type=volume",
+    "source=nvim-python-example-nvim-data,target=/home/vscode/.local/share/nvim,type=volume",
+    "source=nvim-python-example-supermaven,target=/home/vscode/.supermaven,type=volume"
+  ],
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
+  "containerEnv": {
+    "UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
+    "UV_LINK_MODE": "copy",
+    "COLORTERM": "truecolor"
+  },
+  "postCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.venv /home/vscode/.local /home/vscode/.supermaven && uv sync --locked && nvim --headless '+lua assert(vim.g.colors_name == \"karasuma\")' +qa"
+}
