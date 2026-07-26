@@ -7,6 +7,7 @@ require("conform").setup({
     typescriptreact = { "prettierd", "prettier", stop_after_first = true },
     html = { "prettierd", "prettier", stop_after_first = true },
     css = { "prettierd", "prettier", stop_after_first = true },
+    python = { "ruff_organize_imports", "ruff_format" },
     lua = { "stylua" },
     rust = { "rustfmt" },
     java = { "google-java-format" },
