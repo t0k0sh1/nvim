@@ -58,7 +58,7 @@ function M.toggle_terminal()
 
   if vim.bo[state.floating_buf].buftype ~= "terminal" then
     local command, env = get_shell_command()
-    vim.fn.termopen(command, { env = env })
+    vim.fn.jobstart(command, { term = true, env = env })
   end
 
   vim.bo[state.floating_buf].buflisted = false

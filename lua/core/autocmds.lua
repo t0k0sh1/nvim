@@ -93,7 +93,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(ev)
     local opts = { buffer = ev.buf }
 
-    -- Feature 2: Code Jump (Definition & References)
+    -- Code Jump (Definition & References)
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
     vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
 
@@ -103,11 +103,17 @@ vim.api.nvim_create_autocmd("LspAttach", {
       desc = "Code Action",
     })
 
-    -- Feature 4: Diagnostic Navigation
-    vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-    vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-    vim.keymap.set('n', '<leader>do', vim.diagnostic.open_float)
-
+    -- Diagnostic Navigation
+    vim.keymap.set("n", "[d", function()
+      vim.diagnostic.jump({ count = -1, float = true })
+    end, opts)
+    vim.keymap.set("n", "]d", function()
+      vim.diagnostic.jump({ count = 1, float = true })
+    end, opts)
+    vim.keymap.set("n", "<leader>do", vim.diagnostic.open_float, {
+      buffer = ev.buf,
+      desc = "Open Diagnostic",
+    })
   end,
 })
 
