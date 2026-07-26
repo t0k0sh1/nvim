@@ -1,3 +1,49 @@
+local function organize_go_imports(bufnr)
+  local clients = vim.lsp.get_clients({
+    bufnr = bufnr,
+    name = "gopls",
+    method = "textDocument/codeAction",
+  })
+
+  for _, client in ipairs(clients) do
+    local params = {
+      textDocument = vim.lsp.util.make_text_document_params(bufnr),
+      range = {
+        start = { line = 0, character = 0 },
+        ["end"] = { line = vim.api.nvim_buf_line_count(bufnr), character = 0 },
+      },
+      context = {
+        diagnostics = {},
+        only = { "source.organizeImports" },
+      },
+    }
+    local response = client:request_sync("textDocument/codeAction", params, 1000, bufnr)
+
+    for _, action in ipairs((response and response.result) or {}) do
+      if action.edit then
+        vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding)
+      end
+      if action.command then
+        local command = type(action.command) == "table" and action.command or {
+          command = action.command,
+          arguments = action.arguments,
+        }
+        client:request_sync("workspace/executeCommand", command, 1000, bufnr)
+      end
+    end
+
+    break
+  end
+end
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+  group = vim.api.nvim_create_augroup("GoOrganizeImports", { clear = true }),
+  pattern = "*.go",
+  callback = function(args)
+    organize_go_imports(args.buf)
+  end,
+})
+
 -- Auto save on insert leave
 local autosave_group = vim.api.nvim_create_augroup("AutoSaveGroup", { clear = true })
 
@@ -6,6 +52,10 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "BufLeave" }, {
   pattern = "*",
   callback = function()
     if vim.bo.modified and vim.bo.buftype == "" then
+      if vim.bo.filetype == "go" then
+        organize_go_imports(0)
+      end
+
       -- Use the same formatter configuration as regular saves
       require("conform").format({
         bufnr = 0,
