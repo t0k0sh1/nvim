@@ -53,6 +53,11 @@ if vim.lsp.config then
   vim.lsp.config("html", {})
   vim.lsp.config("cssls", {})
 
+  -- JSON / YAML / TOML
+  vim.lsp.config("jsonls", {})
+  vim.lsp.config("yamlls", {})
+  vim.lsp.config("tombi", {})
+
   -- Rust
   vim.lsp.config("rust_analyzer", {
     settings = {
@@ -111,6 +116,9 @@ if vim.lsp.config then
     "ts_ls",
     "html",
     "cssls",
+    "jsonls",
+    "yamlls",
+    "tombi",
     "rust_analyzer",
     "gopls",
     "clangd",
