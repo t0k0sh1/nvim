@@ -15,7 +15,6 @@ vim.g.loaded_ruby_provider = 0
 require("core.packages")
 
 -- load colorscheme
-require("plugins.colorscheme")
 vim.cmd([[colorscheme karasuma]])
 
 -- load core settings, keymaps and autocommands
