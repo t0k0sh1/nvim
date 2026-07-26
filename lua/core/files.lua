@@ -1,4 +1,73 @@
 local M = {}
+local methods = vim.lsp.protocol.Methods
+
+local function supports_method(client, method, bufnr)
+  local ok, supported = pcall(client.supports_method, client, method, bufnr)
+  return ok and supported
+end
+
+local function format_lsp_error(error_value)
+  if type(error_value) == "table" then
+    return error_value.message or vim.inspect(error_value)
+  end
+  return tostring(error_value)
+end
+
+local function prepare_lsp_file_operation(bufnr, method, params)
+  local clients = vim.lsp.get_clients({ bufnr = bufnr })
+
+  for _, client in ipairs(clients) do
+    if supports_method(client, method, bufnr) then
+      local response, request_error = client:request_sync(method, params, 2000, bufnr)
+      if not response then
+        return nil, string.format(
+          "%s failed for %s: %s",
+          method,
+          client.name,
+          format_lsp_error(request_error or "no response")
+        )
+      end
+      if response.err then
+        return nil, string.format(
+          "%s failed for %s: %s",
+          method,
+          client.name,
+          format_lsp_error(response.err)
+        )
+      end
+      if response.result then
+        local applied, apply_error = pcall(
+          vim.lsp.util.apply_workspace_edit,
+          response.result,
+          client.offset_encoding
+        )
+        if not applied then
+          return nil, string.format(
+            "Could not apply file-operation edits from %s: %s",
+            client.name,
+            tostring(apply_error)
+          )
+        end
+      end
+    end
+  end
+
+  return clients
+end
+
+local function notify_lsp_file_operation(clients, bufnr, method, params)
+  for _, client in ipairs(clients) do
+    if supports_method(client, method, bufnr) then
+      local notified = client:notify(method, params)
+      if not notified then
+        vim.notify(
+          string.format("Could not notify %s of %s", client.name, method),
+          vim.log.levels.WARN
+        )
+      end
+    end
+  end
+end
 
 local function move_to_trash(path)
   local trash = vim.fn.exepath("trash")
@@ -98,6 +167,24 @@ function M.rename_current_file()
       return
     end
 
+    local rename_params = {
+      files = {
+        {
+          oldUri = vim.uri_from_fname(path),
+          newUri = vim.uri_from_fname(target),
+        },
+      },
+    }
+    local clients, lsp_error = prepare_lsp_file_operation(
+      bufnr,
+      methods.workspace_willRenameFiles,
+      rename_params
+    )
+    if not clients then
+      vim.notify("File rename cancelled: " .. lsp_error, vim.log.levels.ERROR)
+      return
+    end
+
     local mv = vim.fn.exepath("mv")
     local result = vim.system({ mv, path, target }, { text = true }):wait()
     if result.code ~= 0 then
@@ -107,6 +194,7 @@ function M.rename_current_file()
     end
 
     vim.api.nvim_buf_set_name(bufnr, target)
+    notify_lsp_file_operation(clients, bufnr, methods.workspace_didRenameFiles, rename_params)
     offer_to_trash_empty_directory(vim.fs.dirname(path))
     vim.notify("Renamed file to: " .. target)
   end)
@@ -136,6 +224,21 @@ function M.delete_current_file()
     return
   end
 
+  local delete_params = {
+    files = {
+      { uri = vim.uri_from_fname(path) },
+    },
+  }
+  local clients, lsp_error = prepare_lsp_file_operation(
+    bufnr,
+    methods.workspace_willDeleteFiles,
+    delete_params
+  )
+  if not clients then
+    vim.notify("File deletion cancelled: " .. lsp_error, vim.log.levels.ERROR)
+    return
+  end
+
   local deleted, error_message = move_to_trash(path)
   if not deleted then
     vim.notify("Failed to delete file: " .. error_message, vim.log.levels.ERROR)
@@ -144,6 +247,8 @@ function M.delete_current_file()
 
   -- Prevent the BufLeave autosave from recreating the deleted file.
   vim.bo[bufnr].modified = false
+
+  notify_lsp_file_operation(clients, bufnr, methods.workspace_didDeleteFiles, delete_params)
 
   offer_to_trash_empty_directory(vim.fs.dirname(path))
 

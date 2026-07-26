@@ -46,7 +46,7 @@ if root_dir then
     vim.notify("Lombok Jar path could not be extracted from " .. lombok_bin, vim.log.levels.WARN)
   end
 
-  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  local capabilities = require("core.lsp").client_capabilities()
   capabilities.textDocument.completion.completionItem.snippetSupport = true
   capabilities.textDocument.completion.completionItem.resolveSupport = {
     properties = {

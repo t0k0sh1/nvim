@@ -1,6 +1,10 @@
 if vim.lsp.config then
   -- Explicitly enable and setup servers installed on your system using Neovim 0.11+ API
 
+  vim.lsp.config("*", {
+    capabilities = require("core.lsp").client_capabilities(),
+  })
+
   -- Lua
   vim.lsp.config("lua_ls", {
     settings = {
