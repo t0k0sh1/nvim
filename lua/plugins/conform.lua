@@ -6,6 +6,7 @@ require("conform").setup({
     javascriptreact = { "prettierd", "prettier", stop_after_first = true },
     typescriptreact = { "prettierd", "prettier", stop_after_first = true },
     rust = { "rustfmt" },
+    java = { "google-java-format" },
   },
   format_on_save = {
     timeout_ms = 500,
