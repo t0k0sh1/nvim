@@ -97,8 +97,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
     vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
 
-    -- Feature 3: Rename (Refactoring)
-    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+    -- Code Actions
+    vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, {
+      buffer = ev.buf,
+      desc = "Code Action",
+    })
 
     -- Feature 4: Diagnostic Navigation
     vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)

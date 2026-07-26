@@ -36,6 +36,7 @@ function M.toggle_terminal()
 
   if not vim.api.nvim_buf_is_valid(state.floating_buf) then
     state.floating_buf = vim.api.nvim_create_buf(false, true)
+    vim.bo[state.floating_buf].bufhidden = "wipe"
   end
 
   local width = math.floor(vim.o.columns * 0.8)
