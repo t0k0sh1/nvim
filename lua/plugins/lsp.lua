@@ -88,6 +88,9 @@ if vim.lsp.config then
   -- C / C++
   vim.lsp.config("clangd", {})
 
+  -- Java
+  vim.lsp.config("jdtls", {})
+
   -- Automatically enable all defined servers
   -- This will start the LSP when you open a matching file
   local servers = {
@@ -99,6 +102,7 @@ if vim.lsp.config then
     "rust_analyzer",
     "gopls",
     "clangd",
+    "jdtls",
   }
   for _, server in ipairs(servers) do
     vim.lsp.enable(server)
