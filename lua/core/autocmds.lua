@@ -44,27 +44,25 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
--- Auto save on insert leave
+-- Auto save when leaving a buffer
 local autosave_group = vim.api.nvim_create_augroup("AutoSaveGroup", { clear = true })
 
-vim.api.nvim_create_autocmd({ "InsertLeave", "BufLeave" }, {
+vim.api.nvim_create_autocmd("BufLeave", {
   group = autosave_group,
   pattern = "*",
-  callback = function()
-    if vim.bo.modified and vim.bo.buftype == "" then
-      if vim.bo.filetype == "go" then
-        organize_go_imports(0)
-      end
+  callback = function(args)
+    if not vim.bo[args.buf].modified
+      or vim.bo[args.buf].buftype ~= ""
+      or vim.api.nvim_buf_get_name(args.buf) == ""
+    then
+      return
+    end
 
-      -- Use the same formatter configuration as regular saves
-      require("conform").format({
-        bufnr = 0,
-        timeout_ms = 1000,
-        lsp_format = vim.bo.filetype == "java" and "never" or "fallback",
-      })
-
-      -- Save without triggering other autocmds to prevent infinite loops
-      vim.cmd("noautocmd silent! write")
+    local ok, error_message = pcall(vim.api.nvim_buf_call, args.buf, function()
+      vim.cmd("update")
+    end)
+    if not ok then
+      vim.notify("Auto-save failed: " .. tostring(error_message), vim.log.levels.ERROR)
     end
   end,
 })
