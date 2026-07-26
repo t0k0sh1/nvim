@@ -57,7 +57,7 @@ vim.keymap.set("n", "<leader>ff", function()
     find_command = {
       "sh",
       "-c",
-      "fd --type f --color never --strip-cwd-prefix --exclude __init__.py | sort",
+      "fd --type f --color never --strip-cwd-prefix --exclude __init__.py",
     },
   })
 end, { desc = "Find Files" })

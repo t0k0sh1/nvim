@@ -25,8 +25,14 @@ end
 local root_dir = vim.fs.root(0, { "pom.xml", "build.gradle", ".git", "mvnw", "gradlew" })
 
 if root_dir then
-  local project_name = vim.fn.fnamemodify(root_dir, ":p:h:t")
-  local workspace_dir = vim.fn.stdpath("cache") .. "/jdtls-workspace/" .. project_name
+  root_dir = vim.fs.normalize(root_dir)
+  local project_name = vim.fs.basename(root_dir)
+  local project_hash = vim.fn.sha256(root_dir):sub(1, 12)
+  local workspace_dir = vim.fs.joinpath(
+    vim.fn.stdpath("cache"),
+    "jdtls-workspace",
+    project_name .. "-" .. project_hash
+  )
 
   local cmd = {
     "jdtls",
