@@ -64,6 +64,9 @@ if vim.lsp.config then
   -- Markdown
   vim.lsp.config("marksman", {})
 
+  -- Dockerfile / Docker Compose / Docker Bake
+  vim.lsp.config("docker_language_server", {})
+
   -- Rust
   vim.lsp.config("rust_analyzer", {
     settings = {
@@ -127,6 +130,7 @@ if vim.lsp.config then
     "tombi",
     "bashls",
     "marksman",
+    "docker_language_server",
     "rust_analyzer",
     "gopls",
     "clangd",
