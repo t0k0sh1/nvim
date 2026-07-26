@@ -67,15 +67,6 @@ vim.api.nvim_create_autocmd("BufLeave", {
   end,
 })
 
--- Spell check configuration for markdown and text files
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "markdown", "text" },
-  callback = function()
-    vim.opt_local.spell = true
-    vim.opt_local.spelllang = { "en_us" } -- Check English typos only, ignoring Japanese text
-  end,
-})
-
 -- Enable Tree-sitter highlight for Java
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "java",

@@ -61,6 +61,9 @@ if vim.lsp.config then
   -- Shell Script
   vim.lsp.config("bashls", {})
 
+  -- Markdown
+  vim.lsp.config("marksman", {})
+
   -- Rust
   vim.lsp.config("rust_analyzer", {
     settings = {
@@ -123,6 +126,7 @@ if vim.lsp.config then
     "yamlls",
     "tombi",
     "bashls",
+    "marksman",
     "rust_analyzer",
     "gopls",
     "clangd",
