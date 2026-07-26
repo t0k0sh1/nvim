@@ -49,50 +49,7 @@ if status then
 end
 
 -- nvim-telescope/telescope.nvim
-local telescope = require("telescope")
 local builtin = require("telescope.builtin")
-
-telescope.setup({
-  defaults = {
-    file_ignore_patterns = {
-      "^node_modules/",
-      "/node_modules/",
-      "^pack/",
-      "/pack/",
-      "^__pycache__/",
-      "/__pycache__/",
-      "^build/",
-      "/build/",
-      "^target/",
-      "/target/",
-      "^bin/",
-      "/bin/",
-      "^dist/",
-      "/dist/",
-      "^out/",
-      "/out/",
-      "^coverage/",
-      "/coverage/",
-      "^venv/",
-      "/venv/",
-      "^htmlcov/",
-      "/htmlcov/",
-      "^CMakeFiles/",
-      "/CMakeFiles/",
-      "%.class$",
-      "%.jar$",
-      "%.py[co]$",
-      "%.egg%-info/",
-      "%.o$",
-      "%.a$",
-      "%.so$",
-      "%.dylib$",
-      "gradlew",
-      "^gradle/",
-      "/gradle/",
-    },
-  },
-})
 
 -- find files
 vim.keymap.set("n", "<leader>ff", function()

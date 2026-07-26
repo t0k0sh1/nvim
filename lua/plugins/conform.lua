@@ -19,8 +19,3 @@ require("conform").setup({
     }
   end,
 })
-
--- Define user command to view formatter status
-vim.api.nvim_create_user_command("ConformInfo", function()
-  require("conform").info()
-end, {})

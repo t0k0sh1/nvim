@@ -2,9 +2,6 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Enable 24-bit RGB color
-vim.opt.termguicolors = true
-
 -- disable providers we don't use to speed up startup time
 vim.g.loaded_node_provider = 0
 vim.g.loaded_python3_provider = 0
@@ -29,7 +26,6 @@ require("core.autocmds")
 require("plugins.telescope")
 require("plugins.lualine")
 require("plugins.tiny-cmdline")
-require("plugins.terminal")
 require("plugins.hop")
 
 -- load coding plugins
