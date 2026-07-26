@@ -60,6 +60,17 @@ if vim.lsp.config then
             enable = true,
           },
         },
+        imports = {
+          granularity = {
+            -- Keep imports from the same crate in a single use statement
+            group = "crate",
+            enforce = true,
+          },
+          -- Separate standard library, external crate, and local imports
+          group = {
+            enable = true,
+          },
+        },
         -- Optional: Run `cargo check` on save to get live diagnostics
         checkOnSave = {
           command = "check",
