@@ -58,6 +58,9 @@ if vim.lsp.config then
   vim.lsp.config("yamlls", {})
   vim.lsp.config("tombi", {})
 
+  -- Shell Script
+  vim.lsp.config("bashls", {})
+
   -- Rust
   vim.lsp.config("rust_analyzer", {
     settings = {
@@ -119,6 +122,7 @@ if vim.lsp.config then
     "jsonls",
     "yamlls",
     "tombi",
+    "bashls",
     "rust_analyzer",
     "gopls",
     "clangd",

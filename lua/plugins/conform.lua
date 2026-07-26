@@ -11,6 +11,8 @@ require("conform").setup({
     jsonc = { "prettierd", "prettier", stop_after_first = true },
     yaml = { "prettierd", "prettier", stop_after_first = true },
     toml = { "tombi" },
+    bash = { "shfmt" },
+    sh = { "shfmt" },
     python = { "ruff_organize_imports", "ruff_format" },
     lua = { "stylua" },
     rust = { "rustfmt" },
