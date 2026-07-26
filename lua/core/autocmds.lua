@@ -6,11 +6,12 @@ vim.api.nvim_create_autocmd({ "InsertLeave", "BufLeave" }, {
   pattern = "*",
   callback = function()
     if vim.bo.modified and vim.bo.buftype == "" then
-      -- Format explicitly before saving if LSP is active
-      local clients = vim.lsp.get_clients({ bufnr = 0, method = "textDocument/formatting" })
-      if #clients > 0 then
-        vim.lsp.buf.format({ async = false })
-      end
+      -- Use the same formatter configuration as regular saves
+      require("conform").format({
+        bufnr = 0,
+        timeout_ms = 1000,
+        lsp_format = vim.bo.filetype == "java" and "never" or "fallback",
+      })
 
       -- Save without triggering other autocmds to prevent infinite loops
       vim.cmd("noautocmd silent! write")

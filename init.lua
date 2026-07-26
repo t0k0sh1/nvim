@@ -11,6 +11,9 @@ vim.g.loaded_python3_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 
+-- Make globally installed Bun tools available to Neovim
+vim.env.PATH = vim.fn.expand("~/.bun/bin") .. ":" .. vim.env.PATH
+
 -- install and load plugins
 require("core.packages")
 
