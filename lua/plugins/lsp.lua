@@ -84,33 +84,9 @@ if vim.lsp.config then
   -- C / C++
   vim.lsp.config("clangd", {})
 
-  -- Java
-  local capabilities = vim.lsp.protocol.make_client_capabilities()
-  capabilities.textDocument.completion.completionItem.snippetSupport = true
-  capabilities.textDocument.completion.completionItem.resolveSupport = {
-    properties = {
-      "documentation",
-      "detail",
-      "additionalTextEdits", -- Required for auto-imports during completion
-    },
-  }
-  vim.lsp.config("jdtls", {
-    -- If 'jdtls' is not in your system $PATH, specify the absolute path here:
-    capabilities = capabilities,
-    settings = {
-      java = {
-        signatureHelp = { enabled = true },
-        -- Enable clean-ups on save (Optional but highly recommended for imports)
-        saveActions = {
-          organizeImports = true,
-        },
-      },
-    },
-  })
-
   -- Automatically enable all defined servers
   -- This will start the LSP when you open a matching file
-  local servers = { "lua_ls", "pyrefly", "ts_ls", "rust_analyzer", "gopls", "clangd", "jdtls" }
+  local servers = { "lua_ls", "pyrefly", "ts_ls", "rust_analyzer", "gopls", "clangd" }
   for _, server in ipairs(servers) do
     vim.lsp.enable(server)
   end

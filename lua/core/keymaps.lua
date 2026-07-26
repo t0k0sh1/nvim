@@ -64,7 +64,12 @@ telescope.setup({
       "pack/",
       "__pycache__/",
       "build/",
-      "target/"
+      "target/",
+      "bin/",
+      "**/*.class",
+      "**/*.jar",
+      "gradlew",
+      "gradle/"
     },
   },
 })

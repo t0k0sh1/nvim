@@ -8,10 +8,12 @@ require("conform").setup({
     rust = { "rustfmt" },
     java = { "google-java-format" },
   },
-  format_on_save = {
-    timeout_ms = 500,
-    lsp_format = "fallback", -- Use LSP formatting if no configured formatter is available
-  },
+  format_on_save = function(bufnr)
+    return {
+      timeout_ms = 1000,
+      lsp_format = vim.bo[bufnr].filetype == "java" and "never" or "fallback",
+    }
+  end,
 })
 
 -- Define user command to view formatter status

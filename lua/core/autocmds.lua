@@ -1,7 +1,7 @@
 -- Auto save on insert leave
 local autosave_group = vim.api.nvim_create_augroup("AutoSaveGroup", { clear = true })
 
-vim.api.nvim_create_autocmd({ "InsertLeave", "BufLeave", "TextChanged" }, {
+vim.api.nvim_create_autocmd({ "InsertLeave", "BufLeave" }, {
   group = autosave_group,
   pattern = "*",
   callback = function()
@@ -54,17 +54,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
     vim.keymap.set('n', '<leader>do', vim.diagnostic.open_float)
 
-    -- New Feature: Format on Save (For manual saves like :w)
-    -- Fixed: Use colon syntax (client:supports_method) for Neovim 0.11+ API
-    local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if client and client:supports_method("textDocument/formatting") then
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        buffer = ev.buf,
-        callback = function()
-          vim.lsp.buf.format({ bufnr = ev.buf, async = false })
-        end,
-      })
-    end
   end,
 })
 
