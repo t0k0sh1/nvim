@@ -40,6 +40,11 @@ local file_ignore_patterns = {
 }
 
 telescope.setup({
+  defaults = {
+    layout_config = {
+      width = 0.95,
+    },
+  },
   pickers = {
     find_files = { file_ignore_patterns = file_ignore_patterns },
     live_grep = { file_ignore_patterns = file_ignore_patterns },

@@ -80,12 +80,6 @@ vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Live Grep" })
 -- search buffer
 vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find Buffers" })
 
--- terminal plugin
-local terminal = require("plugins.terminal")
-
--- toggle terminal
-vim.keymap.set("n", "<F12>", terminal.toggle_terminal, opts)
-vim.keymap.set("t", "<F12>", terminal.toggle_terminal, opts)
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], opts)
 
 -- Rename/Move Current File or Directory
