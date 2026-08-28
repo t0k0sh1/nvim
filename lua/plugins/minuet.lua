@@ -4,9 +4,9 @@ local ollama_endpoint = vim.env.MINUET_OLLAMA_ENDPOINT
 require("minuet").setup({
   provider = "openai_fim_compatible",
   n_completions = 1,
-  context_window = 512,
+  context_window = 8192,
   -- Avoid starting a local LLM inference during short pauses while typing.
-  debounce = 900,
+  debounce = 1200,
   throttle = 2000,
   virtualtext = {
     auto_trigger_ft = { "*" },
@@ -22,7 +22,7 @@ require("minuet").setup({
       api_key = "TERM",
       name = "Ollama",
       end_point = ollama_endpoint,
-      model = "qwen2.5-coder:7b",
+      model = "qwen2.5-coder:14b",
       optional = {
         max_tokens = 56,
         top_p = 0.9,
