@@ -83,17 +83,6 @@ if root_dir then
         },
       },
     },
-    on_attach = function(client, bufnr)
-      vim.keymap.set("n", "<leader>oi", function()
-        vim.lsp.buf.code_action({
-          apply = true,
-          context = {
-            only = { "source.organizeImports" },
-            diagnostics = {},
-          },
-        })
-      end, { buffer = bufnr, desc = "Organize Java Imports" })
-    end,
   })
 
   if client_id then

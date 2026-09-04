@@ -15,6 +15,7 @@ local specs = {
   { src = "https://github.com/neovim/nvim-lspconfig", name = "lspconfig" },
   { src = "https://github.com/nvim-lualine/lualine.nvim", name = "lualine" },
   { src = "https://github.com/nvim-tree/nvim-web-devicons", name = "nvim-web-devicons" },
+  { src = "https://github.com/b0o/schemastore.nvim", name = "schemastore" },
   { src = "https://github.com/nvim-lua/plenary.nvim", name = "plenary" },
   { src = "https://github.com/nvim-telescope/telescope.nvim", name = "telescope" },
   {
@@ -37,6 +38,22 @@ vim.api.nvim_create_autocmd("PackChanged", {
     end
 
     build_fzf(data.path)
+  end,
+})
+
+vim.api.nvim_create_autocmd("PackChanged", {
+  callback = function(event)
+    local data = event.data
+    if data.spec.name ~= "treesitter" then
+      return
+    end
+    if data.kind ~= "install" and data.kind ~= "update" then
+      return
+    end
+
+    vim.schedule(function()
+      require("nvim-treesitter").update()
+    end)
   end,
 })
 

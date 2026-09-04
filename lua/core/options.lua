@@ -11,6 +11,7 @@ vim.opt.title = true
 vim.opt.wrap = false
 vim.opt.scrolloff = 10
 vim.opt.signcolumn = "yes"
+vim.opt.completeopt = { "menuone", "noselect", "popup" }
 
 -- indentation settings
 vim.opt.expandtab = true

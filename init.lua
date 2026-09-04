@@ -28,6 +28,7 @@ require("plugins.telescope")
 require("plugins.lualine")
 require("plugins.tiny-cmdline")
 require("plugins.hop")
+require("plugins.treesitter")
 
 -- load coding plugins
 require("plugins.minuet")

@@ -67,12 +67,33 @@ vim.api.nvim_create_autocmd("BufLeave", {
   end,
 })
 
--- Enable Tree-sitter highlight for Java
+local indentation = {
+  c = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  cpp = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  rust = { expandtab = true, shiftwidth = 4, tabstop = 4 },
+  go = { expandtab = false, shiftwidth = 0, tabstop = 8 },
+  python = { expandtab = true, shiftwidth = 4, tabstop = 4 },
+  javascript = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  javascriptreact = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  typescript = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  typescriptreact = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  html = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  css = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  json = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  jsonc = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  yaml = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  toml = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+  lua = { expandtab = true, shiftwidth = 2, tabstop = 2 },
+}
+
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = "java",
+  group = vim.api.nvim_create_augroup("LanguageIndentation", { clear = true }),
+  pattern = vim.tbl_keys(indentation),
   callback = function(args)
-    -- args.buf handles the current buffer, and "java" specifies the parser
-    vim.treesitter.start(args.buf, "java")
+    local options = indentation[vim.bo[args.buf].filetype]
+    for name, value in pairs(options) do
+      vim.bo[args.buf][name] = value
+    end
   end,
 })
 
@@ -81,6 +102,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
   callback = function(ev)
     local opts = { buffer = ev.buf }
+    local client = assert(vim.lsp.get_client_by_id(ev.data.client_id))
+
+    if client:supports_method("textDocument/completion") then
+      vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
+    end
 
     -- Code Jump (Definition & References)
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
@@ -90,6 +116,32 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, {
       buffer = ev.buf,
       desc = "Code Action",
+    })
+    vim.keymap.set("n", "<leader>qf", function()
+      vim.lsp.buf.code_action({
+        apply = true,
+        context = {
+          only = { "quickfix" },
+          diagnostics = vim.diagnostic.get(ev.buf, {
+            lnum = vim.api.nvim_win_get_cursor(0)[1] - 1,
+          }),
+        },
+      })
+    end, {
+      buffer = ev.buf,
+      desc = "Quick Fix",
+    })
+    vim.keymap.set("n", "<leader>oi", function()
+      vim.lsp.buf.code_action({
+        apply = true,
+        context = {
+          only = { "source.organizeImports" },
+          diagnostics = {},
+        },
+      })
+    end, {
+      buffer = ev.buf,
+      desc = "Organize Imports",
     })
 
     -- Diagnostic Navigation

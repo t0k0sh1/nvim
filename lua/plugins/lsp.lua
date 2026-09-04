@@ -54,8 +54,25 @@ if vim.lsp.config then
   vim.lsp.config("cssls", {})
 
   -- JSON / YAML / TOML
-  vim.lsp.config("jsonls", {})
-  vim.lsp.config("yamlls", {})
+  vim.lsp.config("jsonls", {
+    settings = {
+      json = {
+        schemas = require("schemastore").json.schemas(),
+        validate = { enable = true },
+      },
+    },
+  })
+  vim.lsp.config("yamlls", {
+    settings = {
+      yaml = {
+        schemaStore = {
+          enable = false,
+          url = "",
+        },
+        schemas = require("schemastore").yaml.schemas(),
+      },
+    },
+  })
   vim.lsp.config("tombi", {})
 
   -- Shell Script
@@ -117,6 +134,36 @@ if vim.lsp.config then
   -- C / C++
   vim.lsp.config("clangd", {})
 
+  -- Prefer Biome over ESLint when the project has a Biome configuration.
+  vim.lsp.config("biome", {})
+
+  local oxlint_root_dir = vim.lsp.config.oxlint.root_dir
+  vim.lsp.config("oxlint", {
+    root_dir = function(bufnr, on_dir)
+      if vim.fs.root(bufnr, { "biome.json", "biome.jsonc" }) then
+        return
+      end
+      return oxlint_root_dir(bufnr, on_dir)
+    end,
+  })
+
+  local eslint_root_dir = vim.lsp.config.eslint.root_dir
+  vim.lsp.config("eslint", {
+    root_dir = function(bufnr, on_dir)
+      if vim.fs.root(bufnr, { "biome.json", "biome.jsonc" }) then
+        return
+      end
+      return eslint_root_dir(bufnr, on_dir)
+    end,
+  })
+
+  -- Ruff provides Python lint diagnostics; Pyrefly remains the type checker.
+  vim.lsp.config("ruff", {
+    on_attach = function(client)
+      client.server_capabilities.hoverProvider = false
+    end,
+  })
+
   -- Automatically enable all defined servers
   -- This will start the LSP when you open a matching file
   local servers = {
@@ -134,6 +181,10 @@ if vim.lsp.config then
     "rust_analyzer",
     "gopls",
     "clangd",
+    "biome",
+    "oxlint",
+    "eslint",
+    "ruff",
   }
   for _, server in ipairs(servers) do
     vim.lsp.enable(server)
