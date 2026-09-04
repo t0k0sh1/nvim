@@ -21,7 +21,15 @@ require('lualine').setup({
     lualine_a = {'mode'},
     lualine_b = {'branch', 'diff'},
     lualine_c = {{'filename', path = 1}},
-    lualine_x = {'encoding', 'filetype'},
+    lualine_x = {
+      {
+        'diagnostics',
+        sources = { 'nvim_diagnostic' },
+        sections = { 'error', 'warn' },
+      },
+      'encoding',
+      'filetype',
+    },
     lualine_y = {},
     lualine_z = {}
   },

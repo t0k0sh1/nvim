@@ -10,6 +10,7 @@ end
 
 local specs = {
   { src = "https://github.com/t0k0sh1/karasuma.nvim", name = "karasuma" },
+  { src = "https://github.com/lewis6991/gitsigns.nvim", name = "gitsigns" },
   { src = "https://github.com/smoka7/hop.nvim", name = "hop" },
   { src = "https://github.com/stevearc/conform.nvim", name = "conform" },
   { src = "https://github.com/neovim/nvim-lspconfig", name = "lspconfig" },

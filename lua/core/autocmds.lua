@@ -152,9 +152,39 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
     end
 
-    -- Code Jump (Definition & References)
+    if client:supports_method("textDocument/inlayHint") then
+      vim.keymap.set("n", "<leader>th", function()
+        local filter = { bufnr = ev.buf }
+        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(filter), filter)
+      end, {
+        buffer = ev.buf,
+        desc = "Toggle Inlay Hints",
+      })
+    end
+
+    -- LSP navigation and information
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
     vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+    vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, opts)
+    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {
+      buffer = ev.buf,
+      desc = "Rename Symbol",
+    })
+    vim.keymap.set("n", "<leader>ls", function()
+      require("telescope.builtin").lsp_document_symbols()
+    end, {
+      buffer = ev.buf,
+      desc = "Document Symbols",
+    })
+    vim.keymap.set("n", "<leader>lS", function()
+      require("telescope.builtin").lsp_dynamic_workspace_symbols()
+    end, {
+      buffer = ev.buf,
+      desc = "Workspace Symbols",
+    })
 
     -- Code Actions
     vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, {

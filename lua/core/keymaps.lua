@@ -79,15 +79,11 @@ end, { desc = "Find All Files" })
 vim.keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "Live Grep" })
 -- search buffer
 vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find Buffers" })
+-- diagnostics in the current buffer
+vim.keymap.set("n", "<leader>fd", function()
+  builtin.diagnostics({ bufnr = 0 })
+end, { desc = "Buffer Diagnostics" })
+-- diagnostics in the workspace
+vim.keymap.set("n", "<leader>fD", builtin.diagnostics, { desc = "Workspace Diagnostics" })
 
 vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], opts)
-
--- Rename/Move Current File or Directory
-vim.keymap.set("n", "<leader>rn", require("core.files").rename_current_file, {
-  desc = "Rename Current File",
-})
-
--- Delete Current File
-vim.keymap.set("n", "<leader>rm", require("core.files").delete_current_file, {
-  desc = "Delete Current File",
-})

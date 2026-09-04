@@ -29,6 +29,7 @@ require("plugins.lualine")
 require("plugins.tiny-cmdline")
 require("plugins.hop")
 require("plugins.treesitter")
+require("plugins.gitsigns")
 
 -- load coding plugins
 require("plugins.minuet")
