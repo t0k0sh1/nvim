@@ -32,6 +32,10 @@
       "rev": "27bf921498043f7ecd821d6db68d05de244bbd02",
       "src": "https://github.com/nvim-neotest/neotest"
     },
+    "neotest-bun": {
+      "rev": "af0f8684cd00a96f1e0359f1aeff2b9bf7a0ec88",
+      "src": "https://github.com/Arthur944/neotest-bun"
+    },
     "neotest-go": {
       "rev": "59b50505053f9c45a9febb79e11a56206c3e3901",
       "src": "https://github.com/nvim-neotest/neotest-go"
@@ -47,6 +51,10 @@
     "neotest-rust": {
       "rev": "2c9941d4a358839918fac21d20fc8fef0e1ad05f",
       "src": "https://github.com/rouge8/neotest-rust"
+    },
+    "neotest-vitest": {
+      "rev": "c3c69715da4b158069fd4262083e7219a5c14cfb",
+      "src": "https://github.com/marilari88/neotest-vitest"
     },
     "nvim-jdtls": {
       "rev": "6e9d953f0b82bccdb834cfde0e893f3119c22592",

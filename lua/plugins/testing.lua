@@ -23,6 +23,29 @@ local function python_command(root)
   return { python ~= "" and python or "python" }
 end
 
+local javascript_tests = require("core.javascript_test_runner")
+
+local bun_adapter = require("neotest-bun")
+local bun_root = bun_adapter.root
+bun_adapter.root = function(path)
+  local root = bun_root(path)
+  return root and javascript_tests.detect(root) == "bun" and root or nil
+end
+bun_adapter.is_test_file = function(path)
+  return javascript_tests.is_test_file(path, "bun")
+end
+
+local vitest_adapter = require("neotest-vitest")({
+  is_test_file = function(path)
+    return javascript_tests.is_test_file(path, "vitest")
+  end,
+})
+local vitest_root = vitest_adapter.root
+vitest_adapter.root = function(path)
+  local root = vitest_root(path)
+  return root and javascript_tests.detect(root) == "vitest" and root or nil
+end
+
 neotest.setup({
   adapters = {
     require("neotest-java")({}),
@@ -35,6 +58,8 @@ neotest.setup({
       args = { "-count=1" },
       recursive_run = true,
     }),
+    bun_adapter,
+    vitest_adapter,
   },
 })
 

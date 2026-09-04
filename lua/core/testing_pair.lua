@@ -176,6 +176,34 @@ local function go_contents(target)
   return { "package " .. target.package_name, "" }
 end
 
+local function javascript_resolve(path)
+  local filename = vim.fs.basename(path)
+  local stem, extension = filename:match("^(.+)%.test%.(jsx?)$")
+  local kind = "source"
+
+  if not stem then
+    stem, extension = filename:match("^(.+)%.(jsx?)$")
+    kind = "test"
+  end
+  if not stem then
+    stem, extension = filename:match("^(.+)%.test%.(tsx?)$")
+    kind = "source"
+  end
+  if not stem then
+    stem, extension = filename:match("^(.+)%.(tsx?)$")
+    kind = "test"
+  end
+  if not stem then
+    return nil, "Current file is not a JavaScript or TypeScript source file"
+  end
+
+  local target_name = kind == "test" and (stem .. ".test." .. extension) or (stem .. "." .. extension)
+  return {
+    path = vim.fs.joinpath(vim.fs.dirname(path), target_name),
+    kind = kind,
+  }
+end
+
 function M.register(filetype, definition)
   vim.validate({
     filetype = { filetype, "string" },
@@ -240,6 +268,12 @@ M.register("go", {
   resolve = go_resolve,
   contents = go_contents,
 })
+
+for _, filetype in ipairs({ "javascript", "javascriptreact", "typescript", "typescriptreact" }) do
+  M.register(filetype, {
+    resolve = javascript_resolve,
+  })
+end
 
 M.ignore("rust")
 
