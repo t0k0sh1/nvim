@@ -74,6 +74,73 @@ local function java_resolve(path)
   }
 end
 
+local function python_root(path)
+  return vim.fs.root(vim.fs.dirname(path), {
+    "pyproject.toml",
+    "uv.lock",
+    "setup.py",
+    "setup.cfg",
+    ".git",
+  })
+end
+
+local function python_resolve(path)
+  if not path:match("%.py$") then
+    return nil, "Current file is not a Python source file"
+  end
+
+  local root = python_root(path)
+  if not root then
+    return nil, "Could not find the Python project root"
+  end
+
+  root = normalize(root)
+  local relative = path:sub(#root + 2)
+  local test_relative = relative:match("^tests/(.+)$")
+
+  if test_relative then
+    local directory = vim.fs.dirname(test_relative)
+    local filename = vim.fs.basename(test_relative)
+    local source_name = filename:match("^test_(.+%.py)$")
+    if not source_name then
+      local source_stem = filename:match("^(.+)_test%.py$")
+      source_name = source_stem and (source_stem .. ".py") or nil
+    end
+    if not source_name then
+      return nil, "Python test filename must start with test_ or end with _test.py"
+    end
+
+    local source_relative = directory == "." and source_name or vim.fs.joinpath(directory, source_name)
+    local candidates = {
+      vim.fs.joinpath(root, "src", source_relative),
+      vim.fs.joinpath(root, source_relative),
+    }
+
+    for _, candidate in ipairs(candidates) do
+      if vim.fn.filereadable(candidate) == 1 then
+        return { path = candidate, kind = "source" }
+      end
+    end
+
+    local source_root = vim.fn.isdirectory(vim.fs.joinpath(root, "src")) == 1 and vim.fs.joinpath(root, "src") or root
+    return {
+      path = vim.fs.joinpath(source_root, source_relative),
+      kind = "source",
+    }
+  end
+
+  local source_relative = relative:match("^src/(.+)$") or relative
+  local directory = vim.fs.dirname(source_relative)
+  local filename = vim.fs.basename(source_relative)
+  local test_name = "test_" .. filename
+  local target_relative = directory == "." and test_name or vim.fs.joinpath(directory, test_name)
+
+  return {
+    path = vim.fs.joinpath(root, "tests", target_relative),
+    kind = "test",
+  }
+end
+
 function M.register(filetype, definition)
   vim.validate({
     filetype = { filetype, "string" },
@@ -120,6 +187,10 @@ end
 M.register("java", {
   resolve = java_resolve,
   contents = java_contents,
+})
+
+M.register("python", {
+  resolve = python_resolve,
 })
 
 return M

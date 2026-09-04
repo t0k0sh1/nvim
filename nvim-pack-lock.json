@@ -36,6 +36,10 @@
       "rev": "15abbc396981045fae873a962ef8d76710e6e0dc",
       "src": "https://github.com/rcasia/neotest-java"
     },
+    "neotest-python": {
+      "rev": "1b56ca4ba51c6014f986d6548ee629bdc95589d1",
+      "src": "https://github.com/nvim-neotest/neotest-python"
+    },
     "nvim-jdtls": {
       "rev": "6e9d953f0b82bccdb834cfde0e893f3119c22592",
       "src": "https://github.com/mfussenegger/nvim-jdtls"
