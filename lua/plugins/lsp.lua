@@ -107,7 +107,8 @@ if vim.lsp.config then
           },
         },
         -- Optional: Run `cargo check` on save to get live diagnostics
-        checkOnSave = {
+        checkOnSave = true,
+        check = {
           command = "check",
         },
       },

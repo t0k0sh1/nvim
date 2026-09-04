@@ -151,10 +151,18 @@ function M.register(filetype, definition)
   languages[filetype] = definition
 end
 
+function M.ignore(filetype)
+  vim.validate({ filetype = { filetype, "string" } })
+  languages[filetype] = { ignored = true }
+end
+
 function M.switch()
   local definition = languages[vim.bo.filetype]
   if not definition then
     notify("No testing-pair rule for filetype: " .. vim.bo.filetype, vim.log.levels.WARN)
+    return
+  end
+  if definition.ignored then
     return
   end
 
@@ -192,5 +200,7 @@ M.register("java", {
 M.register("python", {
   resolve = python_resolve,
 })
+
+M.ignore("rust")
 
 return M

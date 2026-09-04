@@ -30,6 +30,7 @@ neotest.setup({
       runner = "pytest",
       python = python_command,
     }),
+    require("neotest-rust"),
   },
 })
 
