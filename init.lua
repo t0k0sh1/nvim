@@ -11,6 +11,14 @@ vim.g.loaded_ruby_provider = 0
 -- Make globally installed Bun tools available to Neovim
 vim.env.PATH = vim.fn.expand("~/.bun/bin") .. ":" .. vim.env.PATH
 
+-- Keep Tab available for our Copilot/snippet fallback mapping.
+vim.g.copilot_no_tab_map = true
+vim.g.copilot_filetypes = {
+  markdown = false,
+  text = false,
+  env = false,
+}
+
 -- install and load plugins
 require("core.packages")
 
@@ -34,7 +42,7 @@ require("plugins.gitsigns")
 require("plugins.which-key")
 
 -- load coding plugins
-require("plugins.minuet")
+require("plugins.copilot")
 require("plugins.lsp")
 require("plugins.conform")
 
