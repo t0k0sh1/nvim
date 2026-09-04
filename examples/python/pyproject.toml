@@ -10,11 +10,16 @@ dependencies = []
 dev = [
   "pyrefly",
   "pytest",
+  "pytest-cov>=7.1.0",
   "ruff",
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
 
 [tool.pyrefly]
 fallback-python-interpreter-name = "python"

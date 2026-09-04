@@ -4,10 +4,10 @@ local lombok_jar = ""
 if lombok_bin ~= "" and vim.fn.filereadable(lombok_bin) == 1 then
   local lines = vim.fn.readfile(lombok_bin)
   for _, line in ipairs(lines) do
-    -- クラスパス (-cp) や行内から lombok.jar を含むパスを抽出
+    -- Extract the path containing lombok.jar from the classpath or line.
     local match = line:match("(%S+lombok%.jar)")
     if match then
-      -- コロン区切り (:) で複数のJARが結合されている場合、lombok.jar の要素のみを取り出す
+      -- When multiple JARs are colon-separated, keep only the lombok.jar entry.
       for path in string.gmatch(match, "[^:]+") do
         if path:match("lombok%.jar$") and vim.fn.filereadable(path) == 1 then
           lombok_jar = path
@@ -41,7 +41,7 @@ if root_dir then
   }
 
   if lombok_jar ~= "" then
-    -- Homebrew版jdtlsでは、JVMオプションを --jvm-arg 経由で渡す必要がある
+    -- Homebrew jdtls requires JVM options to be passed through --jvm-arg.
     table.insert(cmd, "--jvm-arg=-javaagent:" .. lombok_jar)
   else
     vim.notify("Lombok Jar path could not be extracted from " .. lombok_bin, vim.log.levels.WARN)

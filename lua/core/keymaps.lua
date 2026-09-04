@@ -62,6 +62,12 @@ end, { desc = "Test Output" })
 vim.keymap.set("n", "<leader>tO", neotest.output_panel.toggle, { desc = "Test Output Panel" })
 vim.keymap.set("n", "<leader>ts", neotest.summary.toggle, { desc = "Test Summary" })
 
+-- run and inspect Python coverage
+local coverage = require("plugins.coverage")
+vim.keymap.set("n", "<leader>tc", coverage.run, { desc = "Test Coverage" })
+vim.keymap.set("n", "<leader>tC", coverage.toggle, { desc = "Toggle Coverage" })
+vim.keymap.set("n", "<leader>tS", coverage.summary, { desc = "Coverage Summary" })
+
 -- smoka7/hop.nvim
 local status, _ = pcall(require, "hop")
 if status then

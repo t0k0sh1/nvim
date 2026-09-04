@@ -37,6 +37,18 @@ devcontainer exec --workspace-folder examples/python uv run pytest
 devcontainer exec --workspace-folder examples/python uv run ruff check .
 ```
 
+## Check coverage in Neovim
+
+Open `src/greeting.py`, then use these mappings:
+
+- `<leader>tc`: run pytest with coverage and show covered/uncovered lines
+- `<leader>tC`: toggle coverage signs
+- `<leader>tS`: show the coverage summary
+
+The untested empty-name branch in `greet` demonstrates partial coverage, while
+the untested `farewell` function demonstrates uncovered lines. Editing a Python
+file clears the stale coverage display.
+
 The project environment is stored in a Docker named volume mounted at
 `/home/vscode/.venv`, so a Linux virtual environment is not written into the
 macOS workspace. Neovim plugins and the Supermaven binary are also stored in

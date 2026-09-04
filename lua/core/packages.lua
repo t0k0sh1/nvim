@@ -18,6 +18,7 @@ local specs = {
   { src = "https://github.com/nvim-tree/nvim-web-devicons", name = "nvim-web-devicons" },
   { src = "https://github.com/b0o/schemastore.nvim", name = "schemastore" },
   { src = "https://github.com/nvim-lua/plenary.nvim", name = "plenary" },
+  { src = "https://github.com/andythigpen/nvim-coverage", name = "coverage" },
   { src = "https://github.com/nvim-neotest/nvim-nio", name = "nvim-nio" },
   { src = "https://github.com/nvim-neotest/neotest", name = "neotest" },
   { src = "https://github.com/rcasia/neotest-java", name = "neotest-java" },
