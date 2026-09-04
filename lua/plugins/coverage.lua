@@ -131,6 +131,63 @@ local function convert_go_coverprofile_to_lcov(report, root)
   vim.fn.writefile(output, report)
 end
 
+local function xml_list(value)
+  if not value then
+    return {}
+  end
+  return value._attr and { value } or value
+end
+
+local function convert_jacoco_to_lcov(source_report, report, root)
+  local xml = require("neotest.lib.xml")
+  local jacoco = assert(xml.parse(table.concat(vim.fn.readfile(source_report), "")), "Could not parse JaCoCo XML")
+  local output = { "TN:" }
+
+  for _, package in ipairs(xml_list(jacoco.report.package)) do
+    for _, source_file in ipairs(xml_list(package.sourcefile)) do
+      local source_path = vim.fs.joinpath(root, "src", "main", "java", package._attr.name, source_file._attr.name)
+      local lines = xml_list(source_file.line)
+      local covered_lines = 0
+      local found_branches = 0
+      local covered_branches = 0
+
+      table.insert(output, "SF:" .. source_path)
+      for _, entry in ipairs(lines) do
+        local attributes = entry._attr
+        local line_number = tonumber(attributes.nr)
+        local missed_instructions = tonumber(attributes.mi)
+        local covered_instructions = tonumber(attributes.ci)
+        local missed = tonumber(attributes.mb)
+        local covered = tonumber(attributes.cb)
+
+        table.insert(output, string.format("DA:%d,%d", line_number, covered_instructions > 0 and 1 or 0))
+        covered_lines = covered_lines + (covered_instructions > 0 and 1 or 0)
+
+        if missed_instructions > 0 and covered_instructions > 0 and missed == 0 then
+          missed = 1
+          covered = math.max(covered, 1)
+        end
+        for branch = 1, covered do
+          table.insert(output, string.format("BRDA:%d,0,%d,1", line_number, branch))
+        end
+        for branch = 1, missed do
+          table.insert(output, string.format("BRDA:%d,0,%d,0", line_number, covered + branch))
+        end
+        found_branches = found_branches + covered + missed
+        covered_branches = covered_branches + covered
+      end
+
+      table.insert(output, "LF:" .. #lines)
+      table.insert(output, "LH:" .. covered_lines)
+      table.insert(output, "BRF:" .. found_branches)
+      table.insert(output, "BRH:" .. covered_branches)
+      table.insert(output, "end_of_record")
+    end
+  end
+
+  vim.fn.writefile(output, report)
+end
+
 local function runner_for(filetype, cache_dir)
   if filetype == "python" then
     local root = project_root({ "uv.lock", "pyproject.toml", ".git" })
@@ -212,6 +269,36 @@ local function runner_for(filetype, cache_dir)
       },
       message = "Running Rust tests with coverage...",
       prepare = remove_blank_line_entries,
+      load = function(place)
+        coverage.load_lcov(report, place)
+      end,
+    }
+  end
+
+  if filetype == "java" then
+    local root =
+      project_root({ "gradlew", "settings.gradle", "settings.gradle.kts", "build.gradle", "build.gradle.kts" })
+    if not root or vim.fn.filereadable(vim.fs.joinpath(root, "gradlew")) ~= 1 then
+      return nil, "Could not find a Gradle Wrapper project root"
+    end
+
+    local gradlew = vim.fs.joinpath(root, "gradlew")
+    if vim.fn.executable(gradlew) ~= 1 then
+      return nil, "gradlew is not executable"
+    end
+
+    local generated_report = vim.fs.joinpath(root, "build", "reports", "jacoco", "test", "jacocoTestReport.xml")
+    local project_id = vim.fn.sha256(root):sub(1, 12)
+    local report = vim.fs.joinpath(cache_dir, project_id .. ".lcov")
+    return {
+      filetypes = { "java" },
+      root = root,
+      report = report,
+      command = { gradlew, "test", "jacocoTestReport", "--console=plain" },
+      message = "Running Gradle tests with JaCoCo coverage...",
+      prepare = function()
+        convert_jacoco_to_lcov(generated_report, report, root)
+      end,
       load = function(place)
         coverage.load_lcov(report, place)
       end,
@@ -310,7 +397,11 @@ function M.run()
         return
       end
 
-      runner.prepare(runner.report, runner.root)
+      local prepared, prepare_error = pcall(runner.prepare, runner.report, runner.root)
+      if not prepared then
+        notify("Could not prepare coverage report:\n" .. tostring(prepare_error), vim.log.levels.ERROR)
+        return
+      end
       runner.load(true)
       current = true
       visible = true
@@ -342,7 +433,7 @@ end
 
 vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
   group = vim.api.nvim_create_augroup("clear_stale_coverage", { clear = true }),
-  pattern = { "*.py", "*.go", "*.rs", "*.js", "*.jsx", "*.ts", "*.tsx" },
+  pattern = { "*.py", "*.go", "*.rs", "*.java", "*.js", "*.jsx", "*.ts", "*.tsx" },
   callback = function()
     if not current then
       return
