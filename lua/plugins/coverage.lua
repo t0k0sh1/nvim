@@ -36,7 +36,7 @@ local running = false
 local current = false
 local visible = false
 local current_report
-local current_filetype
+local current_filetypes
 local current_loader
 
 local function notify(message, level)
@@ -144,7 +144,7 @@ local function runner_for(filetype, cache_dir)
     local project_id = vim.fn.sha256(root):sub(1, 12)
     local report = vim.fs.joinpath(cache_dir, project_id .. ".lcov")
     return {
-      filetype = filetype,
+      filetypes = { "python" },
       root = root,
       report = report,
       command = { "uv", "run", "pytest", "--cov", "--cov-report=lcov:" .. report },
@@ -169,7 +169,7 @@ local function runner_for(filetype, cache_dir)
     local project_id = vim.fn.sha256(root):sub(1, 12)
     local report = vim.fs.joinpath(cache_dir, project_id .. ".lcov")
     return {
-      filetype = filetype,
+      filetypes = { "go" },
       root = root,
       report = report,
       command = { "go", "test", "./...", "-coverprofile=" .. report },
@@ -199,7 +199,7 @@ local function runner_for(filetype, cache_dir)
     local project_id = vim.fn.sha256(root):sub(1, 12)
     local report = vim.fs.joinpath(cache_dir, project_id .. ".lcov")
     return {
-      filetype = filetype,
+      filetypes = { "rust" },
       root = root,
       report = report,
       command = {
@@ -211,6 +211,64 @@ local function runner_for(filetype, cache_dir)
         report,
       },
       message = "Running Rust tests with coverage...",
+      prepare = remove_blank_line_entries,
+      load = function(place)
+        coverage.load_lcov(report, place)
+      end,
+    }
+  end
+
+  local javascript_filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" }
+  if vim.tbl_contains(javascript_filetypes, filetype) then
+    local javascript_tests = require("core.javascript_test_runner")
+    local root = javascript_tests.root(vim.api.nvim_buf_get_name(0))
+    if not root then
+      return nil, "Could not find the JavaScript project root"
+    end
+
+    local test_runner = javascript_tests.detect(root)
+    if not test_runner then
+      return nil, "Could not detect Bun or Vitest"
+    end
+
+    local project_id = vim.fn.sha256(root):sub(1, 12)
+    local report_dir = vim.fs.joinpath(cache_dir, project_id .. "-" .. test_runner)
+    vim.fn.mkdir(report_dir, "p")
+    local report = vim.fs.joinpath(report_dir, "lcov.info")
+    local command
+    local runner_name = test_runner == "bun" and "Bun" or "Vitest"
+
+    if test_runner == "bun" then
+      if vim.fn.executable("bun") ~= 1 then
+        return nil, "bun was not found"
+      end
+      command = {
+        "bun",
+        "test",
+        "--coverage",
+        "--coverage-reporter=lcov",
+        "--coverage-dir=" .. report_dir,
+      }
+    else
+      local vitest = vim.fs.joinpath(root, "node_modules", ".bin", "vitest")
+      if vim.fn.executable(vitest) ~= 1 then
+        return nil, "vitest was not found; install the project dependencies"
+      end
+      command = {
+        vitest,
+        "run",
+        "--coverage",
+        "--coverage.reporter=lcov",
+        "--coverage.reportsDirectory=" .. report_dir,
+      }
+    end
+
+    return {
+      filetypes = javascript_filetypes,
+      root = root,
+      report = report,
+      command = command,
+      message = "Running " .. runner_name .. " tests with coverage...",
       prepare = remove_blank_line_entries,
       load = function(place)
         coverage.load_lcov(report, place)
@@ -257,7 +315,7 @@ function M.run()
       current = true
       visible = true
       current_report = runner.report
-      current_filetype = runner.filetype
+      current_filetypes = runner.filetypes
       current_loader = runner.load
       vim.cmd.redraw()
       notify("Coverage results displayed")
@@ -284,7 +342,7 @@ end
 
 vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
   group = vim.api.nvim_create_augroup("clear_stale_coverage", { clear = true }),
-  pattern = { "*.py", "*.go", "*.rs" },
+  pattern = { "*.py", "*.go", "*.rs", "*.js", "*.jsx", "*.ts", "*.tsx" },
   callback = function()
     if not current then
       return
@@ -294,7 +352,7 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
     current = false
     visible = false
     current_report = nil
-    current_filetype = nil
+    current_filetypes = nil
     current_loader = nil
     notify("Cleared stale coverage after code changes")
   end,
@@ -303,7 +361,7 @@ vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
 vim.api.nvim_create_autocmd("BufEnter", {
   group = vim.api.nvim_create_augroup("reload_coverage_for_opened_buffers", { clear = true }),
   callback = function()
-    if current and current_report and current_loader and vim.bo.filetype == current_filetype then
+    if current and current_report and current_loader and vim.tbl_contains(current_filetypes or {}, vim.bo.filetype) then
       current_loader(visible)
     end
   end,
