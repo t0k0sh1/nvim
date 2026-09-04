@@ -181,6 +181,43 @@ local function runner_for(filetype, cache_dir)
     }
   end
 
+  if filetype == "rust" then
+    local root = project_root({ "Cargo.toml", ".git" })
+    if not root or vim.fn.filereadable(vim.fs.joinpath(root, "Cargo.toml")) ~= 1 then
+      return nil, "Could not find the Rust project root"
+    end
+    if vim.fn.executable("cargo") ~= 1 then
+      return nil, "cargo was not found"
+    end
+    if vim.fn.executable("cargo-llvm-cov") ~= 1 then
+      return nil, "cargo-llvm-cov was not found"
+    end
+    if vim.fn.executable("cargo-nextest") ~= 1 then
+      return nil, "cargo-nextest was not found"
+    end
+
+    local project_id = vim.fn.sha256(root):sub(1, 12)
+    local report = vim.fs.joinpath(cache_dir, project_id .. ".lcov")
+    return {
+      filetype = filetype,
+      root = root,
+      report = report,
+      command = {
+        "cargo",
+        "llvm-cov",
+        "nextest",
+        "--lcov",
+        "--output-path",
+        report,
+      },
+      message = "Running Rust tests with coverage...",
+      prepare = remove_blank_line_entries,
+      load = function(place)
+        coverage.load_lcov(report, place)
+      end,
+    }
+  end
+
   return nil, "Coverage is not configured for " .. filetype
 end
 
@@ -247,7 +284,7 @@ end
 
 vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
   group = vim.api.nvim_create_augroup("clear_stale_coverage", { clear = true }),
-  pattern = { "*.py", "*.go" },
+  pattern = { "*.py", "*.go", "*.rs" },
   callback = function()
     if not current then
       return
