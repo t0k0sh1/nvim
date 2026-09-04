@@ -1,5 +1,21 @@
 local conform = require("conform")
 
+local function measure(timings, name, callback)
+  local started = vim.uv.hrtime()
+  callback()
+  table.insert(timings, {
+    name = name,
+    duration_ms = (vim.uv.hrtime() - started) / 1e6,
+  })
+end
+
+local function format_profile(profile)
+  local steps = vim.tbl_map(function(step)
+    return string.format("%s %.1fms", step.name, step.duration_ms)
+  end, profile.steps)
+  return string.format("Save %.1fms (%s)", profile.total_ms, table.concat(steps, ", "))
+end
+
 local function apply_code_actions(bufnr, client_name, kind)
   local clients = vim.lsp.get_clients({
     bufnr = bufnr,
@@ -48,7 +64,7 @@ local function has_biome_config(bufnr)
   })[1] ~= nil
 end
 
-local function organize_imports(bufnr)
+local function organize_imports(bufnr, timings)
   local filetype = vim.bo[bufnr].filetype
 
   if vim.tbl_contains({ "javascript", "javascriptreact", "typescript", "typescriptreact" }, filetype) then
@@ -57,16 +73,49 @@ local function organize_imports(bufnr)
     end
 
     local uri = vim.uri_from_bufnr(bufnr)
-    execute_command(bufnr, "oxlint", "oxc.fixAll", { { uri = uri } })
-    execute_command(bufnr, "eslint", "eslint.applyAllFixes", {
-      {
-        uri = uri,
-        version = vim.lsp.util.buf_versions[bufnr],
-      },
-    })
-    apply_code_actions(bufnr, "ts_ls", "source.organizeImports")
+    measure(timings, "oxlint", function()
+      execute_command(bufnr, "oxlint", "oxc.fixAll", { { uri = uri } })
+    end)
+    measure(timings, "eslint", function()
+      execute_command(bufnr, "eslint", "eslint.applyAllFixes", {
+        {
+          uri = uri,
+          version = vim.lsp.util.buf_versions[bufnr],
+        },
+      })
+    end)
+    measure(timings, "ts_ls imports", function()
+      apply_code_actions(bufnr, "ts_ls", "source.organizeImports")
+    end)
   elseif filetype == "rust" then
-    apply_code_actions(bufnr, "rust_analyzer", "source.organizeImports")
+    measure(timings, "rust imports", function()
+      apply_code_actions(bufnr, "rust_analyzer", "source.organizeImports")
+    end)
+  end
+end
+
+vim.api.nvim_create_user_command("SaveProfile", function()
+  local profile = vim.b.save_profile
+  if not profile then
+    vim.notify("No save profile is available for this buffer", vim.log.levels.INFO)
+    return
+  end
+  vim.notify(format_profile(profile), vim.log.levels.INFO)
+end, {
+  desc = "Show the most recent save performance profile",
+})
+
+local function record_save_profile(bufnr, started, timings)
+  local profile = {
+    total_ms = (vim.uv.hrtime() - started) / 1e6,
+    steps = timings,
+  }
+  vim.b[bufnr].save_profile = profile
+
+  if profile.total_ms >= 500 then
+    vim.notify(format_profile(profile), vim.log.levels.WARN, {
+      title = "Slow save",
+    })
   end
 end
 
@@ -107,11 +156,17 @@ conform.setup({
 vim.api.nvim_create_autocmd("BufWritePre", {
   group = vim.api.nvim_create_augroup("OrganizeImportsAndFormat", { clear = true }),
   callback = function(args)
-    organize_imports(args.buf)
-    conform.format({
-      bufnr = args.buf,
-      timeout_ms = 1000,
-      lsp_format = vim.bo[args.buf].filetype == "java" and "never" or "fallback",
-    })
+    local started = vim.uv.hrtime()
+    local timings = {}
+
+    organize_imports(args.buf, timings)
+    measure(timings, "format", function()
+      conform.format({
+        bufnr = args.buf,
+        timeout_ms = 1000,
+        lsp_format = vim.bo[args.buf].filetype == "java" and "never" or "fallback",
+      })
+    end)
+    record_save_profile(args.buf, started, timings)
   end,
 })
