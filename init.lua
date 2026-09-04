@@ -30,6 +30,7 @@ require("plugins.tiny-cmdline")
 require("plugins.hop")
 require("plugins.treesitter")
 require("plugins.gitsigns")
+require("plugins.which-key")
 
 -- load coding plugins
 require("plugins.minuet")
