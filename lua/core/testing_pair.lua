@@ -141,6 +141,41 @@ local function python_resolve(path)
   }
 end
 
+local function go_package(path)
+  for _, line in ipairs(vim.fn.readfile(path)) do
+    local package_name = line:match("^%s*package%s+([%w_]+)")
+    if package_name then
+      return package_name
+    end
+  end
+end
+
+local function go_resolve(path)
+  local filename = vim.fs.basename(path)
+  local source_stem = filename:match("^(.+)_test%.go$")
+  local kind = source_stem and "source" or "test"
+  local stem = source_stem or filename:match("^(.+)%.go$")
+  if not stem then
+    return nil, "Current file is not a Go source file"
+  end
+
+  local package_name = go_package(path)
+  if not package_name then
+    return nil, "Could not find the Go package declaration"
+  end
+
+  local target_name = kind == "test" and (stem .. "_test.go") or (stem .. ".go")
+  return {
+    path = vim.fs.joinpath(vim.fs.dirname(path), target_name),
+    kind = kind,
+    package_name = package_name,
+  }
+end
+
+local function go_contents(target)
+  return { "package " .. target.package_name, "" }
+end
+
 function M.register(filetype, definition)
   vim.validate({
     filetype = { filetype, "string" },
@@ -199,6 +234,11 @@ M.register("java", {
 
 M.register("python", {
   resolve = python_resolve,
+})
+
+M.register("go", {
+  resolve = go_resolve,
+  contents = go_contents,
 })
 
 M.ignore("rust")

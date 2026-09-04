@@ -31,6 +31,10 @@ neotest.setup({
       python = python_command,
     }),
     require("neotest-rust"),
+    require("neotest-go")({
+      args = { "-count=1" },
+      recursive_run = true,
+    }),
   },
 })
 

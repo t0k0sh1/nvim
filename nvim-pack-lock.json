@@ -32,6 +32,10 @@
       "rev": "27bf921498043f7ecd821d6db68d05de244bbd02",
       "src": "https://github.com/nvim-neotest/neotest"
     },
+    "neotest-go": {
+      "rev": "59b50505053f9c45a9febb79e11a56206c3e3901",
+      "src": "https://github.com/nvim-neotest/neotest-go"
+    },
     "neotest-java": {
       "rev": "15abbc396981045fae873a962ef8d76710e6e0dc",
       "src": "https://github.com/rcasia/neotest-java"
