@@ -21,8 +21,9 @@ if lombok_bin ~= "" and vim.fn.filereadable(lombok_bin) == 1 then
   end
 end
 
--- プロジェクトルートの検出
-local root_dir = vim.fs.root(0, { "pom.xml", "build.gradle", ".git", "mvnw", "gradlew" })
+-- Prefer repository-level markers so one JDTLS instance covers every module.
+local root_dir = vim.fs.root(0, { ".git", "mvnw", "gradlew" })
+  or vim.fs.root(0, { "pom.xml", "build.gradle", "build.gradle.kts" })
 
 if root_dir then
   root_dir = vim.fs.normalize(root_dir)
@@ -56,7 +57,7 @@ if root_dir then
     },
   }
 
-  local client_id = vim.lsp.start({
+  require("jdtls").start_or_attach({
     name = "jdtls",
     cmd = cmd,
     root_dir = root_dir,
@@ -85,20 +86,18 @@ if root_dir then
     },
   })
 
-  if client_id then
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      buffer = vim.api.nvim_get_current_buf(),
-      callback = function()
-        vim.lsp.buf.code_action({
-          apply = true,
-          context = {
-            only = { "source.organizeImports" },
-            diagnostics = {},
-          },
-        })
-      end,
-    })
-  end
+  vim.api.nvim_create_autocmd("BufWritePre", {
+    buffer = vim.api.nvim_get_current_buf(),
+    callback = function()
+      vim.lsp.buf.code_action({
+        apply = true,
+        context = {
+          only = { "source.organizeImports" },
+          diagnostics = {},
+        },
+      })
+    end,
+  })
 else
   vim.notify("Could not find project root (pom.xml, build.gradle, etc.)", vim.log.levels.WARN)
 end

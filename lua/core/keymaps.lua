@@ -40,7 +40,27 @@ keymap.set("n", "N", "Nzz", opts)
 keymap.set("n", "<ESC>", ":nohlsearch<Bar>:echo<CR>", opts)
 
 -- switch between an implementation and its test, creating the pair when needed
-vim.keymap.set("n", "<leader>tp", require("core.testing_pair").switch, opts)
+vim.keymap.set("n", "<leader>tp", require("core.testing_pair").switch, {
+  desc = "Switch Testing Pair",
+})
+
+-- run Java tests and inspect their persistent results
+local neotest = require("neotest")
+vim.keymap.set("n", "<leader>tn", function()
+  neotest.run.run()
+end, { desc = "Test Nearest" })
+vim.keymap.set("n", "<leader>tf", function()
+  neotest.run.run(vim.fn.expand("%"))
+end, { desc = "Test File" })
+vim.keymap.set("n", "<leader>ta", function()
+  neotest.run.run(vim.uv.cwd())
+end, { desc = "Test All" })
+vim.keymap.set("n", "<leader>tl", neotest.run.run_last, { desc = "Test Last" })
+vim.keymap.set("n", "<leader>to", function()
+  neotest.output.open({ enter = true })
+end, { desc = "Test Output" })
+vim.keymap.set("n", "<leader>tO", neotest.output_panel.toggle, { desc = "Test Output Panel" })
+vim.keymap.set("n", "<leader>ts", neotest.summary.toggle, { desc = "Test Summary" })
 
 -- smoka7/hop.nvim
 local status, _ = pcall(require, "hop")

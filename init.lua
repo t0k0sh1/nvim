@@ -20,6 +20,7 @@ vim.api.nvim_set_hl(0, "tsxIntrinsicTagName", { link = "Tag" })
 
 -- load core settings, keymaps and autocommands
 require("core.options")
+require("plugins.testing")
 require("core.keymaps")
 require("core.autocmds")
 
