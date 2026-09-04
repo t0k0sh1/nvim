@@ -44,26 +44,70 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
--- Auto save when leaving a buffer
+-- Auto save after leaving Insert mode or immediately when leaving a buffer
 local autosave_group = vim.api.nvim_create_augroup("AutoSaveGroup", { clear = true })
+local autosave_generation = {}
+
+local function save_buffer(bufnr)
+  if not vim.api.nvim_buf_is_valid(bufnr)
+    or not vim.bo[bufnr].modified
+    or vim.bo[bufnr].buftype ~= ""
+    or vim.api.nvim_buf_get_name(bufnr) == ""
+  then
+    return
+  end
+
+  local ok, error_message = pcall(vim.api.nvim_buf_call, bufnr, function()
+    vim.cmd("update")
+  end)
+  if not ok then
+    vim.notify("Auto-save failed: " .. tostring(error_message), vim.log.levels.ERROR)
+  end
+end
+
+local function cancel_pending_save(bufnr)
+  autosave_generation[bufnr] = (autosave_generation[bufnr] or 0) + 1
+end
+
+vim.api.nvim_create_autocmd("InsertLeave", {
+  group = autosave_group,
+  pattern = "*",
+  callback = function(args)
+    cancel_pending_save(args.buf)
+    local generation = autosave_generation[args.buf]
+
+    vim.defer_fn(function()
+      if autosave_generation[args.buf] ~= generation then
+        return
+      end
+      save_buffer(args.buf)
+    end, 500)
+  end,
+})
+
+vim.api.nvim_create_autocmd("InsertEnter", {
+  group = autosave_group,
+  pattern = "*",
+  callback = function(args)
+    cancel_pending_save(args.buf)
+  end,
+})
 
 vim.api.nvim_create_autocmd("BufLeave", {
   group = autosave_group,
   pattern = "*",
   callback = function(args)
-    if not vim.bo[args.buf].modified
-      or vim.bo[args.buf].buftype ~= ""
-      or vim.api.nvim_buf_get_name(args.buf) == ""
-    then
-      return
-    end
+    vim.cmd("stopinsert")
+    cancel_pending_save(args.buf)
+    save_buffer(args.buf)
+  end,
+})
 
-    local ok, error_message = pcall(vim.api.nvim_buf_call, args.buf, function()
-      vim.cmd("update")
-    end)
-    if not ok then
-      vim.notify("Auto-save failed: " .. tostring(error_message), vim.log.levels.ERROR)
-    end
+vim.api.nvim_create_autocmd("BufWipeout", {
+  group = autosave_group,
+  pattern = "*",
+  callback = function(args)
+    autosave_generation[args.buf] = nil
   end,
 })
 
