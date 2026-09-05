@@ -240,6 +240,141 @@ local function convert_jacoco_to_lcov(source_report, report, root)
 end
 
 local function runner_for(filetype, cache_dir)
+  if filetype == "cpp" or filetype == "c" then
+    local root = project_root({ "CMakeLists.txt", "CMakePresets.json", ".git" })
+    if not root or vim.fn.filereadable(vim.fs.joinpath(root, "CMakeLists.txt")) ~= 1 then
+      return nil, "Could not find the CMake project root"
+    end
+
+    for _, executable in ipairs({ "cmake", "ninja", "clang++", "llvm-profdata", "llvm-cov" }) do
+      if vim.fn.executable(executable) ~= 1 then
+        return nil, executable .. " was not found"
+      end
+    end
+
+    local project_id = vim.fn.sha256(root):sub(1, 12)
+    local build_dir = vim.fs.joinpath(root, "build", "coverage")
+    local profile_pattern = vim.fs.joinpath(build_dir, "coverage-%p.profraw")
+    local profile_data = vim.fs.joinpath(build_dir, "coverage.profdata")
+    local report = vim.fs.joinpath(cache_dir, project_id .. ".lcov")
+
+    local function execute(done)
+      local output = {}
+
+      local function run(command, options, callback)
+        vim.system(command, vim.tbl_extend("force", { cwd = root, text = true }, options or {}), function(result)
+          table.insert(output, result.stdout or "")
+          table.insert(output, result.stderr or "")
+          if result.code ~= 0 then
+            result.stdout = table.concat(output, "\n")
+            result.stderr = ""
+            done(result)
+            return
+          end
+          callback(result)
+        end)
+      end
+
+      run(
+        {
+          "cmake",
+          "-S",
+          root,
+          "-B",
+          build_dir,
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DCMAKE_C_COMPILER=clang",
+          "-DCMAKE_CXX_COMPILER=clang++",
+          "-DCMAKE_C_FLAGS=-fprofile-instr-generate -fcoverage-mapping",
+          "-DCMAKE_CXX_FLAGS=-fprofile-instr-generate -fcoverage-mapping",
+          "-DCMAKE_EXE_LINKER_FLAGS=-fprofile-instr-generate",
+        },
+        nil,
+        function()
+          run({ "cmake", "--build", build_dir }, nil, function()
+            run({ "ctest", "--test-dir", build_dir, "--show-only=json-v1" }, nil, function(list_result)
+              local decoded = vim.json.decode(list_result.stdout)
+              local binaries = {}
+              local seen = {}
+              for _, test in ipairs(decoded.tests or {}) do
+                local binary = test.command and test.command[1]
+                if binary and not seen[binary] then
+                  seen[binary] = true
+                  table.insert(binaries, binary)
+                end
+              end
+              if #binaries == 0 then
+                done({ code = 1, stdout = "CTest did not report any GoogleTest executables", stderr = "" })
+                return
+              end
+
+              run({ "ctest", "--test-dir", build_dir, "--output-on-failure" }, {
+                env = { LLVM_PROFILE_FILE = profile_pattern },
+              }, function()
+                local profiles = {}
+                local scanner = vim.uv.fs_scandir(build_dir)
+                while scanner do
+                  local name = vim.uv.fs_scandir_next(scanner)
+                  if not name then
+                    break
+                  end
+                  if name:match("^coverage%-.+%.profraw$") then
+                    table.insert(profiles, vim.fs.joinpath(build_dir, name))
+                  end
+                end
+                if #profiles == 0 then
+                  done({ code = 1, stdout = "LLVM did not produce any raw coverage profiles", stderr = "" })
+                  return
+                end
+
+                local merge = { "llvm-profdata", "merge", "-sparse", "-o", profile_data }
+                vim.list_extend(merge, profiles)
+                run(merge, nil, function()
+                  local export = {
+                    "llvm-cov",
+                    "export",
+                    "-format=lcov",
+                    "-instr-profile=" .. profile_data,
+                    binaries[1],
+                  }
+                  for index = 2, #binaries do
+                    vim.list_extend(export, { "-object", binaries[index] })
+                  end
+                  run(export, nil, function(export_result)
+                    local descriptor = assert(vim.uv.fs_open(report, "w", 420))
+                    assert(vim.uv.fs_write(descriptor, export_result.stdout))
+                    assert(vim.uv.fs_close(descriptor))
+                    done({ code = 0, stdout = table.concat(output, "\n"), stderr = "" })
+                  end)
+                end)
+              end)
+            end)
+          end)
+        end
+      )
+    end
+
+    return {
+      filetypes = { "c", "cpp" },
+      root = root,
+      report = report,
+      execute = execute,
+      clean = function()
+        for _, path in ipairs(vim.fn.glob(vim.fs.joinpath(build_dir, "coverage-*.profraw"), false, true)) do
+          vim.uv.fs_unlink(path)
+        end
+        vim.uv.fs_unlink(profile_data)
+      end,
+      message = "Running CMake GoogleTest tests with LLVM coverage...",
+      prepare = remove_blank_line_entries,
+      load = function(place)
+        coverage.load_lcov(report, place)
+      end,
+    }
+  end
+
   if filetype == "lua" then
     local root = project_root({ ".busted", "*.rockspec", ".luacov", ".git" })
     if not root then
@@ -504,6 +639,11 @@ function M.run()
     end)
   end
 
+  if runner.execute then
+    runner.execute(finish)
+    return
+  end
+
   local function run_command(index)
     vim.system(commands[index], {
       cwd = runner.root,
@@ -544,7 +684,25 @@ end
 
 vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
   group = vim.api.nvim_create_augroup("clear_stale_coverage", { clear = true }),
-  pattern = { "*.lua", "*.py", "*.go", "*.rs", "*.java", "*.js", "*.jsx", "*.ts", "*.tsx" },
+  pattern = {
+    "*.c",
+    "*.cc",
+    "*.cpp",
+    "*.cxx",
+    "*.h",
+    "*.hh",
+    "*.hpp",
+    "*.hxx",
+    "*.lua",
+    "*.py",
+    "*.go",
+    "*.rs",
+    "*.java",
+    "*.js",
+    "*.jsx",
+    "*.ts",
+    "*.tsx",
+  },
   callback = function()
     if not current then
       return

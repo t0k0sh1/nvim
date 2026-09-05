@@ -28,6 +28,7 @@ local specs = {
   { src = "https://github.com/Arthur944/neotest-bun", name = "neotest-bun" },
   { src = "https://github.com/marilari88/neotest-vitest", name = "neotest-vitest" },
   { src = "https://github.com/MisanthropicBit/neotest-busted", name = "neotest-busted" },
+  { src = "https://github.com/alfaix/neotest-gtest", name = "neotest-gtest" },
   { src = "https://github.com/mfussenegger/nvim-jdtls", name = "nvim-jdtls" },
   { src = "https://github.com/nvim-telescope/telescope.nvim", name = "telescope" },
   {

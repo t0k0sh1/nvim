@@ -64,6 +64,10 @@ neotest.setup({
       busted_command = "busted",
       no_nvim = true,
     }),
+    require("neotest-gtest").setup({
+      root = require("neotest.lib").files.match_root_pattern("CMakeLists.txt", "compile_commands.json", ".git"),
+      mappings = { configure = "C" },
+    }),
   },
 })
 
