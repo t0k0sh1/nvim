@@ -44,18 +44,19 @@ vim.keymap.set("n", "<leader>tp", require("core.testing_pair").switch, {
   desc = "Switch Testing Pair",
 })
 
--- run Java tests and inspect their persistent results
+-- run tests and inspect their persistent results
 local neotest = require("neotest")
+local test_runner = require("core.test_runner")
 vim.keymap.set("n", "<leader>tn", function()
-  neotest.run.run()
+  test_runner.run()
 end, { desc = "Test Nearest" })
 vim.keymap.set("n", "<leader>tf", function()
-  neotest.run.run(vim.fn.expand("%"))
+  test_runner.run(vim.fn.expand("%"))
 end, { desc = "Test File" })
 vim.keymap.set("n", "<leader>ta", function()
-  neotest.run.run(vim.uv.cwd())
+  test_runner.run(vim.uv.cwd())
 end, { desc = "Test All" })
-vim.keymap.set("n", "<leader>tl", neotest.run.run_last, { desc = "Test Last" })
+vim.keymap.set("n", "<leader>tl", test_runner.run_last, { desc = "Test Last" })
 vim.keymap.set("n", "<leader>to", function()
   neotest.output.open({ enter = true })
 end, { desc = "Test Output" })

@@ -1,6 +1,7 @@
 local M = {}
 
 local detected = {}
+local building = {}
 
 local function normalize(path)
   return vim.fs.normalize(vim.fs.abspath(path))
@@ -10,10 +11,10 @@ local function project_root(path)
   return vim.fs.root(vim.fs.dirname(path), { "CMakeLists.txt", "CMakePresets.json", ".git" })
 end
 
-local function build_directories(root)
+local function build_candidates(root)
   local candidates = {
-    vim.fs.joinpath(root, "build", "coverage"),
     vim.fs.joinpath(root, "build"),
+    vim.fs.joinpath(root, "build", "coverage"),
     vim.fs.joinpath(root, "cmake-build-debug"),
     vim.fs.joinpath(root, "cmake-build-release"),
   }
@@ -29,16 +30,24 @@ local function build_directories(root)
     end
   end
 
+  return candidates
+end
+
+local function directories_with(root, marker)
   local result = {}
   local seen = {}
-  for _, candidate in ipairs(candidates) do
+  for _, candidate in ipairs(build_candidates(root)) do
     candidate = normalize(candidate)
-    if not seen[candidate] and vim.uv.fs_stat(vim.fs.joinpath(candidate, "CTestTestfile.cmake")) then
+    if not seen[candidate] and vim.uv.fs_stat(vim.fs.joinpath(candidate, marker)) then
       seen[candidate] = true
       table.insert(result, candidate)
     end
   end
   return result
+end
+
+local function build_directories(root)
+  return directories_with(root, "CTestTestfile.cmake")
 end
 
 local function binaries_from_ctest(output)
@@ -118,6 +127,73 @@ function M.detect(path)
     end)
   end
   inspect(1)
+end
+
+function M.build(path, callback)
+  local root = project_root(path)
+  if not root then
+    vim.notify("Could not find the CMake project root", vim.log.levels.ERROR, { title = "Test" })
+    return
+  end
+  root = normalize(root)
+  if building[root] then
+    vim.notify("C++ tests are already building", vim.log.levels.INFO, { title = "Test" })
+    return
+  end
+  if vim.fn.executable("cmake") ~= 1 then
+    vim.notify("cmake was not found", vim.log.levels.ERROR, { title = "Test" })
+    return
+  end
+
+  local configured = directories_with(root, "CMakeCache.txt")
+  local build_dir = configured[1] or vim.fs.joinpath(root, "build")
+  local commands = {}
+  if #configured == 0 then
+    if vim.fn.executable("ninja") ~= 1 then
+      vim.notify("ninja was not found", vim.log.levels.ERROR, { title = "Test" })
+      return
+    end
+    table.insert(commands, {
+      "cmake",
+      "-S",
+      root,
+      "-B",
+      build_dir,
+      "-G",
+      "Ninja",
+      "-DCMAKE_BUILD_TYPE=Debug",
+    })
+  end
+  table.insert(commands, { "cmake", "--build", build_dir })
+
+  building[root] = true
+  vim.notify("Building C++ tests...", vim.log.levels.INFO, { title = "Test" })
+  local output = {}
+  local function run(index)
+    vim.system(commands[index], { cwd = root, text = true }, function(result)
+      table.insert(output, result.stdout or "")
+      table.insert(output, result.stderr or "")
+      if result.code ~= 0 then
+        vim.schedule(function()
+          building[root] = nil
+          local message = vim.trim(table.concat(output, "\n"))
+          vim.notify("C++ test build failed:\n" .. message:sub(-4000), vim.log.levels.ERROR, { title = "Test" })
+        end)
+        return
+      end
+      if index < #commands then
+        run(index + 1)
+        return
+      end
+
+      detected[root] = nil
+      vim.schedule(function()
+        building[root] = nil
+        callback()
+      end)
+    end)
+  end
+  run(1)
 end
 
 return M
