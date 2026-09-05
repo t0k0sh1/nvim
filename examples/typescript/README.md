@@ -1,14 +1,18 @@
-# TypeScript development with Neovim
+# TypeScript 7 development with Neovim
 
 This project exercises the TypeScript development features in this Neovim configuration:
 
-- ts_ls diagnostics, completion, and imports
+- TypeScript 7 native-LSP diagnostics, completion, and imports
 - ESLint and oxlint diagnostics
 - Prettier formatting on save
 - Neotest with Vitest
 - V8 coverage rendered as line backgrounds
 
 Install dependencies with `pnpm install`, open `src/greeting.ts`, then use:
+
+The `@typescript/native` alias supplies the TypeScript 7 compiler and native
+LSP, while the `typescript` alias supplies the TypeScript 6 API currently
+required by `typescript-eslint`.
 
 - `<leader>tn`: run the nearest test
 - `<leader>tf`: run tests in the current file

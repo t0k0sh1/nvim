@@ -84,8 +84,10 @@ local function organize_imports(bufnr, timings)
         },
       })
     end)
-    measure(timings, "ts_ls imports", function()
-      apply_code_actions(bufnr, "ts_ls", "source.organizeImports")
+    measure(timings, "TypeScript imports", function()
+      for _, client_name in ipairs({ "ts_native", "ts_ls" }) do
+        apply_code_actions(bufnr, client_name, "source.organizeImports")
+      end
     end)
   elseif filetype == "rust" then
     measure(timings, "rust imports", function()

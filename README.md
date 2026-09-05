@@ -47,6 +47,19 @@ match the project. Examples include `pytest` and `pytest-cov` in a uv project,
 Vitest and its coverage provider in a JavaScript project, GoogleTest in a CMake
 project, and JaCoCo configured through a project's Gradle wrapper.
 
+### TypeScript versions
+
+The TypeScript language server is selected from the project's local `tsc`:
+
+- TypeScript 7 and later use the native `tsc --lsp --stdio` server.
+- TypeScript 6 and earlier use `typescript-language-server` and `tsserver`.
+
+Only one server is started. Projects using TypeScript 7 with `typescript-eslint`
+also need the TypeScript 6 compatibility API. `examples/typescript` demonstrates
+that alias configuration, while `examples/typescript6` exercises the legacy
+server. `:checkhealth nvim_config` reports the selected editor backend and warns
+when project dependencies have not been installed.
+
 ## Keymaps
 
 `<leader>` is the Space key. Leader mappings can also be discovered through

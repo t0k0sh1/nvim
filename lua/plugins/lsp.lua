@@ -32,8 +32,11 @@ if vim.lsp.config then
     settings = {},
   })
 
-  -- JavaScript / TypeScript
+  -- JavaScript / TypeScript. TypeScript 7 ships a native LSP in tsc, while
+  -- older projects continue to use typescript-language-server and tsserver.
+  local typescript = require("core.typescript")
   vim.lsp.config("ts_ls", {
+    root_dir = typescript.root_for("legacy"),
     settings = {
       typescript = {
         suggest = {
@@ -47,6 +50,19 @@ if vim.lsp.config then
         },
       },
     },
+  })
+  vim.lsp.config("ts_native", {
+    cmd = function(dispatchers, config)
+      local tsc = assert(typescript.compiler(config.root_dir), "TypeScript compiler not found")
+      return vim.lsp.rpc.start({ tsc, "--lsp", "--stdio" }, dispatchers)
+    end,
+    filetypes = {
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+    },
+    root_dir = typescript.root_for("native"),
   })
 
   -- HTML / CSS
@@ -170,6 +186,7 @@ if vim.lsp.config then
   local servers = {
     "lua_ls",
     "pyrefly",
+    "ts_native",
     "ts_ls",
     "html",
     "cssls",

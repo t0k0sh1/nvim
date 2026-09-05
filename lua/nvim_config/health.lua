@@ -206,9 +206,17 @@ local function check_current_project()
     package = decoded and package or {}
     local dependencies = vim.tbl_extend("force", package.dependencies or {}, package.devDependencies or {})
     local is_typescript = dependencies.typescript ~= nil
+      or dependencies["@typescript/native"] ~= nil
       or vim.fn.filereadable(vim.fs.joinpath(js_root, "tsconfig.json")) == 1
     if is_typescript then
       check_node_package(js_root, "typescript", "TypeScript project service", js_install_command(js_root, "typescript"))
+      local backend, version = require("core.typescript").backend(js_root)
+      if version then
+        local description = backend == "native" and "native tsc LSP" or "typescript-language-server"
+        vim.health.ok(string.format("TypeScript %s editor backend: %s", version, description))
+      else
+        vim.health.warn("TypeScript editor backend cannot be selected until project dependencies are installed")
+      end
     end
 
     local biome_config = vim.fs.find({ "biome.json", "biome.jsonc", ".biome.json", ".biome.jsonc" }, {
@@ -255,6 +263,13 @@ local function check_current_project()
             "TypeScript ESLint rules",
             js_install_command(js_root, "typescript-eslint")
           )
+          local backend = require("core.typescript").backend(js_root)
+          local typescript_spec = tostring(dependencies.typescript or "")
+          if backend == "native" and not typescript_spec:find("@typescript/typescript6", 1, true) then
+            vim.health.warn(
+              "TypeScript 7 has no programmatic API for typescript-eslint; keep @typescript/typescript6 as the typescript alias"
+            )
+          end
         end
       else
         vim.health.warn(
