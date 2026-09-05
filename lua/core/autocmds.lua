@@ -153,7 +153,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end
 
     if client:supports_method("textDocument/inlayHint") then
-      vim.keymap.set("n", "<leader>th", function()
+      vim.keymap.set("n", "<leader>lh", function()
         local filter = { bufnr = ev.buf }
         vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(filter), filter)
       end, {
@@ -169,7 +169,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
     vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
     vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, opts)
-    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, {
+    vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, {
       buffer = ev.buf,
       desc = "Rename Symbol",
     })
@@ -191,7 +191,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       buffer = ev.buf,
       desc = "Code Action",
     })
-    vim.keymap.set("n", "<leader>qf", function()
+    vim.keymap.set("n", "<leader>cf", function()
       vim.lsp.buf.code_action({
         apply = true,
         context = {
@@ -205,7 +205,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       buffer = ev.buf,
       desc = "Quick Fix",
     })
-    vim.keymap.set("n", "<leader>oi", function()
+    vim.keymap.set("n", "<leader>ci", function()
       vim.lsp.buf.code_action({
         apply = true,
         context = {
@@ -225,7 +225,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("n", "]d", function()
       vim.diagnostic.jump({ count = 1, float = true })
     end, opts)
-    vim.keymap.set("n", "<leader>do", vim.diagnostic.open_float, {
+    vim.keymap.set("n", "<leader>ld", vim.diagnostic.open_float, {
       buffer = ev.buf,
       desc = "Open Diagnostic",
     })

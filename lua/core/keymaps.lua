@@ -26,7 +26,7 @@ keymap.set("n", "<S-l>", ":bnext<CR>", opts)
 
 -- close buffer(s)
 -- close current buffer
-keymap.set("n", "<leader>bd", ":bnext | bdelete #<CR>", opts)
+keymap.set("n", "<leader>bc", ":bnext | bdelete #<CR>", opts)
 -- close other buffers
 keymap.set("n", "<leader>bo", ":%bd | e# | bd#<CR>", opts)
 -- close all buffers without quitting NeoVim

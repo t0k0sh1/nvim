@@ -7,8 +7,9 @@ which_key.setup({
 
 which_key.add({
   { "<leader>b", group = "buffer" },
+  { "<leader>c", group = "code" },
   { "<leader>f", group = "find" },
   { "<leader>h", group = "git hunk" },
   { "<leader>l", group = "lsp" },
-  { "<leader>t", group = "toggle/test" },
+  { "<leader>t", group = "test" },
 })
