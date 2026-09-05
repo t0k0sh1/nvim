@@ -13,6 +13,7 @@ local specs = {
   { src = "https://github.com/lewis6991/gitsigns.nvim", name = "gitsigns" },
   { src = "https://github.com/smoka7/hop.nvim", name = "hop" },
   { src = "https://github.com/stevearc/conform.nvim", name = "conform" },
+  { src = "https://github.com/mfussenegger/nvim-lint", name = "nvim-lint" },
   { src = "https://github.com/neovim/nvim-lspconfig", name = "lspconfig" },
   { src = "https://github.com/nvim-lualine/lualine.nvim", name = "lualine" },
   { src = "https://github.com/nvim-tree/nvim-web-devicons", name = "nvim-web-devicons" },

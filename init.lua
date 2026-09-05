@@ -8,8 +8,8 @@ vim.g.loaded_python3_provider = 0
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0
 
--- Make globally installed Bun tools available to Neovim
-vim.env.PATH = vim.fn.expand("~/.bun/bin") .. ":" .. vim.env.PATH
+-- Make tools installed by the platform setup scripts available to Neovim.
+require("core.path")
 
 -- Keep Tab available for our Copilot/snippet fallback mapping.
 vim.g.copilot_no_tab_map = true
@@ -45,6 +45,7 @@ require("plugins.which-key")
 require("plugins.copilot")
 require("plugins.lsp")
 require("plugins.conform")
+require("plugins.lint")
 
 -- add filetype for .gotmpl files
 vim.filetype.add({
