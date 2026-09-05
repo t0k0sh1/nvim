@@ -309,6 +309,7 @@ local function runner_for(filetype, cache_dir)
                 done({ code = 1, stdout = "CTest did not report any GoogleTest executables", stderr = "" })
                 return
               end
+              require("core.gtest").assign(root, binaries)
 
               run({ "ctest", "--test-dir", build_dir, "--output-on-failure" }, {
                 env = { LLVM_PROFILE_FILE = profile_pattern },

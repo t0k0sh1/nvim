@@ -10,7 +10,8 @@ nvim src/greeting.cpp
 Use `<leader>tc` to configure with CMake, build with Ninja, run CTest, and show
 coverage. The intentionally untested `audience` function remains uncovered.
 
-For individual Neotest runs, first open the test summary with `<leader>ts`, mark
-the project directory with `m`, press `C`, and enter
-`build/coverage/greeting_test`. This executable assignment is persisted; after
-that, `<leader>tn`, `<leader>tf`, and the other common test mappings work normally.
+When CTest reports one GoogleTest executable, it is assigned to Neotest
+automatically. `<leader>tn`, `<leader>tf`, and the other common test mappings can
+then run it directly. Projects with multiple test executables remain ambiguous;
+for those, open `<leader>ts`, mark a group with `m`, and press `C` to select its
+executable manually.
