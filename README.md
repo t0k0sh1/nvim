@@ -135,7 +135,7 @@ These mappings are available when an LSP server is attached to the buffer.
 
 | Key | Mode | Action |
 | --- | --- | --- |
-| `gd` | Normal | Go to definition |
+| `gd` | Normal | Go to definition, including CSS classes used in HTML/JSX/TSX |
 | `gD` | Normal | Go to declaration |
 | `gi` | Normal | Go to implementation |
 | `gr` | Normal | Show references |

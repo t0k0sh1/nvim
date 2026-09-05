@@ -51,6 +51,7 @@ require("plugins.copilot")
 require("plugins.lsp")
 require("plugins.conform")
 require("plugins.lint")
+require("plugins.html-css")
 
 -- add filetype for .gotmpl files
 vim.filetype.add({
