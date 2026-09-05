@@ -58,7 +58,7 @@ local groups = {
     tools = {
       { "clang-format", "C/C++ formatting" },
       { "google-java-format", "Java formatting" },
-      { "htmlhint", "HTML linting" },
+      { "markuplint", "HTML and JSX/TSX linting" },
       { "markdownlint-cli2", "Markdown linting" },
       { "prettier", "web format fallback" },
       { "prettierd", "fast web formatting" },

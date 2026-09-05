@@ -130,8 +130,10 @@ npm install --global \
   @biomejs/biome \
   bash-language-server \
   eslint \
-  htmlhint \
+  @markuplint/jsx-parser \
+  @markuplint/react-spec \
   markdownlint-cli2 \
+  markuplint \
   oxlint \
   prettier \
   @fsouza/prettierd \

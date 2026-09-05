@@ -26,7 +26,6 @@ packages=(
   go
   google-java-format
   gopls
-  htmlhint
   jdtls
   lua
   lua-language-server
@@ -71,8 +70,8 @@ fi
 # LuaCov is not available as a Homebrew formula.
 luarocks install --local luacov
 
-# ESLint rules belong to each project, but a global fallback keeps its LSP usable.
-npm install --global eslint
+# Project rules remain local, while global fallbacks keep linting available.
+npm install --global eslint markuplint @markuplint/jsx-parser @markuplint/react-spec
 
 # Lombok is the only Nix-installed editor dependency without a Homebrew formula.
 local_bin="${HOME}/.local/bin"
