@@ -11,5 +11,6 @@ which_key.add({
   { "<leader>f", group = "find" },
   { "<leader>h", group = "git hunk" },
   { "<leader>l", group = "lsp" },
+  { "<leader>m", group = "markdown" },
   { "<leader>t", group = "test" },
 })

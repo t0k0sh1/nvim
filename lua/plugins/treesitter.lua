@@ -14,6 +14,8 @@ local parsers = {
   "toml",
   "lua",
   "java",
+  "markdown",
+  "markdown_inline",
 }
 
 require("nvim-treesitter").install(parsers)
@@ -38,6 +40,7 @@ vim.api.nvim_create_autocmd("FileType", {
     "toml",
     "lua",
     "java",
+    "markdown",
   },
   callback = function(args)
     vim.treesitter.start(args.buf)

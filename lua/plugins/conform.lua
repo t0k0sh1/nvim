@@ -140,6 +140,7 @@ conform.setup({
     lua = { "stylua" },
     rust = { "rustfmt" },
     java = { "google-java-format" },
+    markdown = { "prettierd", "prettier", stop_after_first = true },
   },
   formatters = {
     ["biome-check"] = {

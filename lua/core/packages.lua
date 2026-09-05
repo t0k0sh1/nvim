@@ -8,6 +8,16 @@ local function build_fzf(path)
   end
 end
 
+local function build_markdown_preview(path)
+  local result = vim.system({ "npm", "install" }, { cwd = vim.fs.joinpath(path, "app") }):wait()
+  if result.code ~= 0 then
+    vim.notify(
+      "Failed to build markdown-preview.nvim:\n" .. (result.stderr or ""),
+      vim.log.levels.ERROR
+    )
+  end
+end
+
 local specs = {
   { src = "https://github.com/t0k0sh1/karasuma.nvim", name = "karasuma" },
   { src = "https://github.com/lewis6991/gitsigns.nvim", name = "gitsigns" },
@@ -40,6 +50,7 @@ local specs = {
   { src = "https://github.com/github/copilot.vim", name = "copilot" },
   { src = "https://github.com/rachartier/tiny-cmdline.nvim", name = "tiny-cmdline" },
   { src = "https://github.com/folke/which-key.nvim", name = "which-key" },
+  { src = "https://github.com/iamcco/markdown-preview.nvim", name = "markdown-preview" },
 }
 
 vim.api.nvim_create_autocmd("PackChanged", {
@@ -53,6 +64,20 @@ vim.api.nvim_create_autocmd("PackChanged", {
     end
 
     build_fzf(data.path)
+  end,
+})
+
+vim.api.nvim_create_autocmd("PackChanged", {
+  callback = function(event)
+    local data = event.data
+    if data.spec.name ~= "markdown-preview" then
+      return
+    end
+    if data.kind ~= "install" and data.kind ~= "update" then
+      return
+    end
+
+    build_markdown_preview(data.path)
   end,
 })
 
@@ -80,6 +105,11 @@ vim.pack.add(specs, { confirm = false, load = true })
 local fzf = vim.pack.get({ "telescope-fzf-native" })[1]
 if fzf and vim.fn.empty(vim.fn.glob(fzf.path .. "/build/libfzf.*")) == 1 then
   build_fzf(fzf.path)
+end
+
+local markdown_preview = vim.pack.get({ "markdown-preview" })[1]
+if markdown_preview and vim.fn.isdirectory(vim.fs.joinpath(markdown_preview.path, "app", "node_modules")) == 0 then
+  build_markdown_preview(markdown_preview.path)
 end
 
 vim.api.nvim_create_user_command("PackUpdate", function(opts)

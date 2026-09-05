@@ -59,6 +59,7 @@ local groups = {
       { "clang-format", "C/C++ formatting" },
       { "google-java-format", "Java formatting" },
       { "htmlhint", "HTML linting" },
+      { "markdownlint-cli2", "Markdown linting" },
       { "prettier", "web format fallback" },
       { "prettierd", "fast web formatting" },
       { "ruff", "Python formatting and imports" },

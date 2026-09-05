@@ -131,6 +131,7 @@ npm install --global \
   bash-language-server \
   eslint \
   htmlhint \
+  markdownlint-cli2 \
   oxlint \
   prettier \
   @fsouza/prettierd \

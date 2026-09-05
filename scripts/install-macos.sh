@@ -33,6 +33,7 @@ packages=(
   luarocks
   llvm@22
   marksman
+  markdownlint-cli2
   neovim
   neovim-remote
   ninja

@@ -113,6 +113,12 @@ These mappings are available when an LSP server is attached to the buffer.
 | `<leader>tC` | Normal | Toggle coverage highlighting |
 | `<leader>tS` | Normal | Show the coverage summary |
 
+### Markdown
+
+| Key | Mode | Action |
+| --- | --- | --- |
+| `<leader>mp` | Normal | Toggle the browser preview for the current Markdown file |
+
 ### Git hunks
 
 | Key | Mode | Action |

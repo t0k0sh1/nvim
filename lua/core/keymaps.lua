@@ -69,6 +69,14 @@ vim.keymap.set("n", "<leader>tc", coverage.run, { desc = "Test Coverage" })
 vim.keymap.set("n", "<leader>tC", coverage.toggle, { desc = "Toggle Coverage" })
 vim.keymap.set("n", "<leader>tS", coverage.summary, { desc = "Coverage Summary" })
 
+vim.keymap.set("n", "<leader>mp", function()
+  if vim.bo.filetype ~= "markdown" then
+    vim.notify("Markdown preview is available only in Markdown buffers", vim.log.levels.WARN)
+    return
+  end
+  vim.cmd("MarkdownPreviewToggle")
+end, { desc = "Markdown Preview" })
+
 -- smoka7/hop.nvim
 local status, _ = pcall(require, "hop")
 if status then

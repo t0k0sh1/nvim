@@ -19,6 +19,11 @@ vim.g.copilot_filetypes = {
   env = false,
 }
 
+vim.g.mkdp_filetypes = { "markdown" }
+vim.g.mkdp_auto_start = 0
+vim.g.mkdp_auto_close = 1
+vim.g.mkdp_open_to_the_world = 0
+
 -- install and load plugins
 require("core.packages")
 

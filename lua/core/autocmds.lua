@@ -141,6 +141,18 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("MarkdownDisplay", { clear = true }),
+  pattern = "markdown",
+  callback = function(args)
+    vim.bo[args.buf].textwidth = 0
+    vim.wo.wrap = true
+    vim.wo.linebreak = true
+    vim.wo.breakindent = true
+  end,
+  desc = "Wrap Markdown at word boundaries without changing the file",
+})
+
 -- Keymaps after LSP attaches to a buffer
 vim.api.nvim_create_autocmd("LspAttach", {
   group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
