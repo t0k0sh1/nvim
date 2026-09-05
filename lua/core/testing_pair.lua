@@ -204,6 +204,87 @@ local function javascript_resolve(path)
   }
 end
 
+local function lua_resolve(path)
+  if not path:match("%.lua$") then
+    return nil, "Current file is not a Lua source file"
+  end
+
+  local root = vim.fs.root(vim.fs.dirname(path), { ".busted", "*.rockspec", ".luacov", ".git" })
+  if not root then
+    return nil, "Could not find the Lua project root"
+  end
+
+  root = normalize(root)
+  local relative = path:sub(#root + 2)
+  local test_relative = relative:match("^spec/(.+)_spec%.lua$")
+  if test_relative then
+    local source_relative = test_relative .. ".lua"
+    local candidates = {
+      vim.fs.joinpath(root, "lua", source_relative),
+      vim.fs.joinpath(root, "src", source_relative),
+      vim.fs.joinpath(root, source_relative),
+    }
+    for _, candidate in ipairs(candidates) do
+      if vim.fn.filereadable(candidate) == 1 then
+        return { path = candidate, kind = "source" }
+      end
+    end
+
+    local source_dir = vim.fn.isdirectory(vim.fs.joinpath(root, "lua")) == 1 and "lua" or "src"
+    return { path = vim.fs.joinpath(root, source_dir, source_relative), kind = "source" }
+  end
+
+  local source_relative = relative:match("^lua/(.+)$") or relative:match("^src/(.+)$") or relative
+  local stem = source_relative:match("^(.+)%.lua$")
+  return {
+    path = vim.fs.joinpath(root, "spec", stem .. "_spec.lua"),
+    kind = "test",
+  }
+end
+
+local function cpp_resolve(path)
+  local root = vim.fs.root(vim.fs.dirname(path), { "CMakeLists.txt", "CMakePresets.json", ".git" })
+  if not root then
+    return nil, "Could not find the CMake project root"
+  end
+
+  root = normalize(root)
+  local relative = path:sub(#root + 2)
+  local test_stem = relative:match("^tests/(.+)_test%.[^/]+$")
+  if test_stem then
+    local candidates = {
+      vim.fs.joinpath(root, "src", test_stem .. ".cpp"),
+      vim.fs.joinpath(root, "src", test_stem .. ".cc"),
+      vim.fs.joinpath(root, "src", test_stem .. ".cxx"),
+      vim.fs.joinpath(root, "include", test_stem .. ".hpp"),
+      vim.fs.joinpath(root, "include", test_stem .. ".h"),
+      vim.fs.joinpath(root, "include", test_stem .. ".hh"),
+      vim.fs.joinpath(root, "include", test_stem .. ".hxx"),
+    }
+    for _, candidate in ipairs(candidates) do
+      if vim.fn.filereadable(candidate) == 1 then
+        return { path = candidate, kind = "source" }
+      end
+    end
+
+    return { path = vim.fs.joinpath(root, "src", test_stem .. ".cpp"), kind = "source" }
+  end
+
+  local source_relative = relative:match("^src/(.+)$") or relative:match("^include/(.+)$")
+  if not source_relative then
+    return nil, "C++ source must be under src or include"
+  end
+  local stem = source_relative:match("^(.+)%.[^./]+$")
+  if not stem then
+    return nil, "Current file is not a C++ source or header file"
+  end
+
+  return {
+    path = vim.fs.joinpath(root, "tests", stem .. "_test.cpp"),
+    kind = "test",
+  }
+end
+
 function M.register(filetype, definition)
   vim.validate({
     filetype = { filetype, "string" },
@@ -272,6 +353,16 @@ M.register("go", {
 for _, filetype in ipairs({ "javascript", "javascriptreact", "typescript", "typescriptreact" }) do
   M.register(filetype, {
     resolve = javascript_resolve,
+  })
+end
+
+M.register("lua", {
+  resolve = lua_resolve,
+})
+
+for _, filetype in ipairs({ "c", "cpp" }) do
+  M.register(filetype, {
+    resolve = cpp_resolve,
   })
 end
 
