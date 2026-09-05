@@ -60,6 +60,10 @@ neotest.setup({
     }),
     bun_adapter,
     vitest_adapter,
+    require("neotest-busted")({
+      busted_command = "busted",
+      no_nvim = true,
+    }),
   },
 })
 

@@ -131,6 +131,57 @@ local function convert_go_coverprofile_to_lcov(report, root)
   vim.fn.writefile(output, report)
 end
 
+local function convert_luacov_to_lcov(source_report, report, root)
+  local output = { "TN:" }
+  local lines = vim.fn.readfile(source_report)
+  local index = 1
+
+  while index <= #lines do
+    if lines[index]:match("^=+$") and lines[index + 1] and lines[index + 2] and lines[index + 2]:match("^=+$") then
+      local filename = lines[index + 1]
+      if filename == "Summary" then
+        break
+      end
+
+      local source_path = vim.fs.normalize(filename)
+      if not vim.startswith(source_path, "/") then
+        source_path = vim.fs.joinpath(root, source_path)
+      end
+
+      local entries = {}
+      local covered = 0
+      index = index + 3
+      while index <= #lines and not lines[index]:match("^=+$") do
+        local missed = lines[index]:match("^%s*%*+0 ")
+        local count = missed and 0 or tonumber(lines[index]:match("^%s*(%d+) "))
+        if count then
+          table.insert(entries, { line = #entries + 1, count = count })
+          covered = covered + (count > 0 and 1 or 0)
+        else
+          table.insert(entries, false)
+        end
+        index = index + 1
+      end
+
+      table.insert(output, "SF:" .. source_path)
+      local found = 0
+      for line_number, entry in ipairs(entries) do
+        if entry then
+          found = found + 1
+          table.insert(output, string.format("DA:%d,%d", line_number, entry.count))
+        end
+      end
+      table.insert(output, "LF:" .. found)
+      table.insert(output, "LH:" .. covered)
+      table.insert(output, "end_of_record")
+    else
+      index = index + 1
+    end
+  end
+
+  vim.fn.writefile(output, report)
+end
+
 local function xml_list(value)
   if not value then
     return {}
@@ -189,6 +240,44 @@ local function convert_jacoco_to_lcov(source_report, report, root)
 end
 
 local function runner_for(filetype, cache_dir)
+  if filetype == "lua" then
+    local root = project_root({ ".busted", "*.rockspec", ".luacov", ".git" })
+    if not root then
+      return nil, "Could not find the Lua project root"
+    end
+    if vim.fn.executable("busted") ~= 1 then
+      return nil, "busted was not found"
+    end
+    if vim.fn.executable("luacov") ~= 1 then
+      return nil, "luacov was not found"
+    end
+
+    local project_id = vim.fn.sha256(root):sub(1, 12)
+    local generated_report = vim.fs.joinpath(root, "luacov.report.out")
+    local stats = vim.fs.joinpath(root, "luacov.stats.out")
+    local report = vim.fs.joinpath(cache_dir, project_id .. ".lcov")
+    return {
+      filetypes = { "lua" },
+      root = root,
+      report = report,
+      commands = {
+        { "busted", "--coverage" },
+        { "luacov" },
+      },
+      clean = function()
+        vim.uv.fs_unlink(stats)
+        vim.uv.fs_unlink(generated_report)
+      end,
+      message = "Running Busted tests with LuaCov coverage...",
+      prepare = function()
+        convert_luacov_to_lcov(generated_report, report, root)
+      end,
+      load = function(place)
+        coverage.load_lcov(report, place)
+      end,
+    }
+  end
+
   if filetype == "python" then
     local root = project_root({ "uv.lock", "pyproject.toml", ".git" })
     if not root then
@@ -383,11 +472,13 @@ function M.run()
   running = true
   notify(runner.message)
 
-  vim.system(runner.command, {
-    cwd = runner.root,
-    text = true,
-    env = runner.env,
-  }, function(result)
+  if runner.clean then
+    runner.clean()
+  end
+
+  local commands = runner.commands or { runner.command }
+  local outputs = {}
+  local function finish(result)
     vim.schedule(function()
       running = false
       if result.code ~= 0 then
@@ -411,7 +502,27 @@ function M.run()
       vim.cmd.redraw()
       notify("Coverage results displayed")
     end)
-  end)
+  end
+
+  local function run_command(index)
+    vim.system(commands[index], {
+      cwd = runner.root,
+      text = true,
+      env = runner.env,
+    }, function(result)
+      table.insert(outputs, result.stdout or "")
+      table.insert(outputs, result.stderr or "")
+      if result.code ~= 0 or index == #commands then
+        result.stdout = table.concat(outputs, "\n")
+        result.stderr = ""
+        finish(result)
+      else
+        run_command(index + 1)
+      end
+    end)
+  end
+
+  run_command(1)
 end
 
 function M.toggle()
@@ -433,7 +544,7 @@ end
 
 vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
   group = vim.api.nvim_create_augroup("clear_stale_coverage", { clear = true }),
-  pattern = { "*.py", "*.go", "*.rs", "*.java", "*.js", "*.jsx", "*.ts", "*.tsx" },
+  pattern = { "*.lua", "*.py", "*.go", "*.rs", "*.java", "*.js", "*.jsx", "*.ts", "*.tsx" },
   callback = function()
     if not current then
       return

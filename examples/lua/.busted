@@ -1,0 +1,5 @@
+return {
+  default = {
+    lua_path = "./src/?.lua;./src/?/init.lua",
+  },
+}

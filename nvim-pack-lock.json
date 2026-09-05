@@ -40,6 +40,10 @@
       "rev": "af0f8684cd00a96f1e0359f1aeff2b9bf7a0ec88",
       "src": "https://github.com/Arthur944/neotest-bun"
     },
+    "neotest-busted": {
+      "rev": "9efddcee53d255cef8937541808eccd464772f80",
+      "src": "https://github.com/MisanthropicBit/neotest-busted"
+    },
     "neotest-go": {
       "rev": "59b50505053f9c45a9febb79e11a56206c3e3901",
       "src": "https://github.com/nvim-neotest/neotest-go"
