@@ -1,5 +1,12 @@
 local neotest = require("neotest")
 
+-- neotest-gtest parses its queries while the module is loaded, so a clean
+-- installation needs the C++ parser before the adapter is required.
+local treesitter = require("nvim-treesitter")
+treesitter.setup({ install_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "site") })
+treesitter.install({ "cpp" }):wait()
+vim.treesitter.language.add("cpp")
+
 local function python_command(root)
   if vim.fn.filereadable(vim.fs.joinpath(root, "uv.lock")) == 1 then
     return { "uv", "run", "--project", root, "python" }

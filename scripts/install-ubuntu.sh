@@ -13,12 +13,14 @@ case "$(uname -m)" in
     luals_arch="x64"
     marksman_arch="x64"
     go_arch="amd64"
+    rust_target="x86_64-unknown-linux-gnu"
     ;;
   aarch64 | arm64)
     nvim_arch="arm64"
     luals_arch="arm64"
     marksman_arch="arm64"
     go_arch="arm64"
+    rust_target="aarch64-unknown-linux-gnu"
     ;;
   *)
     echo "Unsupported architecture: $(uname -m)" >&2
@@ -40,8 +42,8 @@ sudo apt-get install --yes \
   git \
   jq \
   lua-busted \
-  lua-luacov \
   lua5.4 \
+  liblua5.4-dev \
   luarocks \
   llvm \
   ninja-build \
@@ -52,6 +54,9 @@ sudo apt-get install --yes \
   shfmt \
   tar \
   unzip
+
+# LuaCov is not packaged by every supported Ubuntu release.
+luarocks --lua-version 5.4 install --local luacov
 
 local_bin="${HOME}/.local/bin"
 local_opt="${HOME}/.local/opt"
@@ -64,11 +69,10 @@ trap 'rm -rf "$temp_dir"' EXIT
 github_asset_url() {
   local repository="$1"
   local pattern="$2"
-  curl --fail --location --silent --show-error \
+  curl --fail --location --retry 3 --silent --show-error \
     "https://api.github.com/repos/${repository}/releases/latest" \
-    | jq --raw-output --arg pattern "$pattern" \
-      '.assets[] | select(.name | test($pattern)) | .browser_download_url' \
-    | head -n 1
+    | jq --exit-status --raw-output --arg pattern "$pattern" \
+      'first(.assets[] | select(.name | test($pattern)) | .browser_download_url)'
 }
 
 # Neovim's Ubuntu package is too old for vim.pack on some supported releases.
@@ -102,8 +106,10 @@ fi
 export PATH="${HOME}/.cargo/bin:${PATH}"
 rustup component add rust-analyzer rustfmt
 cargo install --locked cargo-llvm-cov stylua
-curl --proto '=https' --tlsv1.2 --fail --silent --show-error https://get.nexte.st/latest/linux \
-  | tar zxf - -C "$local_bin"
+nextest_url="$(github_asset_url nextest-rs/nextest "cargo-nextest-[0-9.]+-${rust_target}\\.tar\\.gz$")"
+nextest_archive="${temp_dir}/cargo-nextest.tar.gz"
+curl --fail --location --silent --show-error "$nextest_url" --output "$nextest_archive"
+tar -xzf "$nextest_archive" -C "$local_bin"
 
 # uv provides isolated installs for Python editor tooling.
 if ! command -v uv >/dev/null 2>&1; then
@@ -129,6 +135,7 @@ npm install --global \
   prettier \
   @fsouza/prettierd \
   tombi \
+  tree-sitter-cli \
   typescript \
   typescript-language-server \
   vscode-langservers-extracted \
@@ -164,7 +171,7 @@ tar -xzf "$jdtls_archive" -C "${local_opt}/jdtls"
 ln -sfn "${local_opt}/jdtls/bin/jdtls" "${local_bin}/jdtls"
 
 # Java formatter and Lombok are distributed as executable jars.
-google_java_format_url="$(github_asset_url google/google-java-format 'google-java-format-[0-9.]+-all-deps\\.jar$')"
+google_java_format_url="$(github_asset_url google/google-java-format 'google-java-format-[0-9.]+-all-deps\.jar$')"
 java_tools="${HOME}/.local/share/java-tools"
 lombok_dir="${HOME}/.local/share/lombok"
 mkdir -p "$java_tools" "$lombok_dir"

@@ -49,6 +49,7 @@ packages=(
   shfmt
   stylua
   tombi
+  tree-sitter
   typescript-language-server
   uv
   vscode-langservers-extracted

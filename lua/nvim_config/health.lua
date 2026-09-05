@@ -80,6 +80,7 @@ local groups = {
       { "llvm-cov", "C++ coverage" },
       { "llvm-profdata", "C++ coverage profiles" },
       { "luacov", "Lua coverage" },
+      { "tree-sitter", "Tree-sitter parser builds" },
     },
   },
 }
