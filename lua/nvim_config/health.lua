@@ -97,6 +97,21 @@ local function check_executable(command, purpose, optional)
   end
 end
 
+local function check_treesitter_parser(language, purpose)
+  local ok = pcall(vim.treesitter.language.add, language)
+  if ok then
+    vim.health.ok(string.format("%s parser (%s)", language, purpose))
+  else
+    vim.health.warn(
+      string.format(
+        "%s parser is not installed (%s); restart Neovim after Tree-sitter finishes installing it",
+        language,
+        purpose
+      )
+    )
+  end
+end
+
 local function project_executable(root, relative)
   local path = vim.fs.joinpath(root, "node_modules", ".bin", relative)
   return vim.fn.executable(path) == 1 and path or nil
@@ -344,6 +359,9 @@ function M.check()
       check_executable(tool[1], tool[2], group.optional == true or tool[3] == true)
     end
   end
+
+  vim.health.start("Tree-sitter parsers")
+  check_treesitter_parser("cpp", "GoogleTest discovery")
 
   vim.health.start("Current project")
   check_current_project()
