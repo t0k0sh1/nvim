@@ -1,18 +1,28 @@
 local function build_fzf(path)
   local result = vim.system({ "make" }, { cwd = path }):wait()
   if result.code ~= 0 then
-    vim.notify(
-      "Failed to build telescope-fzf-native:\n" .. (result.stderr or ""),
-      vim.log.levels.ERROR
-    )
+    vim.notify("Failed to build telescope-fzf-native:\n" .. (result.stderr or ""), vim.log.levels.ERROR)
   end
 end
 
 local function build_markdown_preview(path)
-  local result = vim.system({ "npm", "install" }, { cwd = vim.fs.joinpath(path, "app") }):wait()
+  local package_manager
+  for _, candidate in ipairs({ "pnpm", "npm", "bun", "yarn" }) do
+    if vim.fn.executable(candidate) == 1 then
+      package_manager = candidate
+      break
+    end
+  end
+
+  if not package_manager then
+    vim.notify("Cannot build markdown-preview.nvim: install pnpm, npm, Bun, or Yarn", vim.log.levels.ERROR)
+    return
+  end
+
+  local result = vim.system({ package_manager, "install" }, { cwd = vim.fs.joinpath(path, "app") }):wait()
   if result.code ~= 0 then
     vim.notify(
-      "Failed to build markdown-preview.nvim:\n" .. (result.stderr or ""),
+      ("Failed to build markdown-preview.nvim with %s:\n%s"):format(package_manager, result.stderr or ""),
       vim.log.levels.ERROR
     )
   end

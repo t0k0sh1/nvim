@@ -22,13 +22,11 @@ keymap.set("n", "<Leader>Q", ":qa!<Return>", opts)
 
 -- show or hide a persistent terminal without listing it as an editing buffer
 local terminal = require("core.terminal")
-for _, lhs in ipairs({ "<C-/>", "<C-_>" }) do
-  keymap.set({ "n", "t" }, lhs, terminal.toggle, {
-    noremap = true,
-    silent = true,
-    desc = "Toggle Terminal",
-  })
-end
+keymap.set({ "n", "t" }, "<C-\\>", terminal.toggle, {
+  noremap = true,
+  silent = true,
+  desc = "Toggle Terminal",
+})
 
 local window_directions = {
   h = 8,

@@ -97,7 +97,7 @@ of buffer navigation and Telescope results.
 
 | Key | Mode | Action |
 | --- | --- | --- |
-| `<C-/>` | Normal, Terminal | Show or hide the persistent terminal |
+| `<C-\>` | Normal, Terminal | Show or hide the persistent terminal |
 | `<Esc>` | Terminal | Leave Terminal mode without hiding the terminal |
 | `<C-h>` | Normal, Terminal | Move to the window on the left |
 | `<C-j>` | Normal, Terminal | Move to the window below |
