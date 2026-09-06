@@ -84,6 +84,25 @@ which-key by pressing Space and waiting for the menu.
 | `<leader>bo` | Normal | Close all buffers except the current one |
 | `<leader>ba` | Normal | Close all buffers without quitting Neovim |
 
+### Terminal
+
+The terminal opens in a bottom split at the current project root. Hiding it
+keeps the shell and running processes alive, while its unlisted buffer stays out
+of buffer navigation and Telescope results.
+
+| Key | Mode | Action |
+| --- | --- | --- |
+| `<C-/>` | Normal, Terminal | Show or hide the persistent terminal |
+| `<Esc>` | Terminal | Leave Terminal mode without hiding the terminal |
+| `<C-h>` | Normal, Terminal | Move to the window on the left |
+| `<C-j>` | Normal, Terminal | Move to the window below |
+| `<C-k>` | Normal, Terminal | Move to the window above |
+| `<C-l>` | Normal, Terminal | Move to the window on the right |
+
+In Terminal mode, a directional Ctrl key is sent to the shell normally when
+there is no window in that direction. This preserves terminal controls such as
+`<C-l>` for clearing the screen when no right-hand split exists.
+
 ### Find
 
 | Key | Mode | Action |
