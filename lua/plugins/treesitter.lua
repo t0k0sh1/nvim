@@ -18,7 +18,11 @@ local parsers = {
   "markdown_inline",
 }
 
-require("nvim-treesitter").install(parsers)
+vim.api.nvim_create_user_command("TreeSitterInstallConfigured", function()
+  require("nvim-treesitter").install(parsers, { summary = true })
+end, {
+  desc = "Install the configured Tree-sitter parsers",
+})
 
 vim.api.nvim_create_autocmd("FileType", {
   group = vim.api.nvim_create_augroup("TreeSitterHighlight", { clear = true }),
@@ -43,6 +47,8 @@ vim.api.nvim_create_autocmd("FileType", {
     "markdown",
   },
   callback = function(args)
-    vim.treesitter.start(args.buf)
+    -- Missing parsers should not interrupt editing. Install them explicitly
+    -- with :TreeSitterInstallConfigured and inspect them with :checkhealth.
+    pcall(vim.treesitter.start, args.buf)
   end,
 })

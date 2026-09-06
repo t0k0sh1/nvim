@@ -42,6 +42,13 @@ The report separates common editor tools, language servers, formatters and
 linters, optional test and coverage tools, and dependencies detected for the
 current project.
 
+Tree-sitter parsers are not downloaded during startup. Install all parsers used
+by this configuration when needed:
+
+```vim
+:TreeSitterInstallConfigured
+```
+
 Some test dependencies intentionally remain project-local so their versions
 match the project. Examples include `pytest` and `pytest-cov` in a uv project,
 Vitest and its coverage provider in a JavaScript project, GoogleTest in a CMake
