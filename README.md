@@ -73,6 +73,11 @@ which-key by pressing Space and waiting for the menu.
 | `<leader>q` | Normal | Quit the current window |
 | `<leader>Q` | Normal | Quit Neovim without saving |
 | `<leader><leader>` | Normal | Jump to a visible word |
+| `<F12>` | Normal, Insert | Enable or disable Copilot suggestions |
+
+The statusline shows ` COPILOT` while Copilot is enabled and hides it while
+suggestions are disabled. LSP features and the rest of the editor remain
+unchanged.
 
 ### Buffers
 

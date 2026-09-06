@@ -23,6 +23,11 @@ require('lualine').setup({
     lualine_c = {{'filename', path = 1}},
     lualine_x = {
       {
+        function()
+          return vim.g.copilot_enabled == 0 and "" or " COPILOT"
+        end,
+      },
+      {
         'diagnostics',
         sources = { 'nvim_diagnostic' },
         sections = { 'error', 'warn' },
