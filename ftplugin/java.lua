@@ -29,15 +29,12 @@ if root_dir then
   root_dir = vim.fs.normalize(root_dir)
   local project_name = vim.fs.basename(root_dir)
   local project_hash = vim.fn.sha256(root_dir):sub(1, 12)
-  local workspace_dir = vim.fs.joinpath(
-    vim.fn.stdpath("cache"),
-    "jdtls-workspace",
-    project_name .. "-" .. project_hash
-  )
+  local workspace_dir = vim.fs.joinpath(vim.fn.stdpath("cache"), "jdtls-workspace", project_name .. "-" .. project_hash)
 
   local cmd = {
     "jdtls",
-    "-data", workspace_dir,
+    "-data",
+    workspace_dir,
   }
 
   if lombok_jar ~= "" then
@@ -57,11 +54,15 @@ if root_dir then
     },
   }
 
-  require("jdtls").start_or_attach({
+  local jdtls = require("jdtls")
+  jdtls.start_or_attach({
     name = "jdtls",
     cmd = cmd,
     root_dir = root_dir,
     capabilities = capabilities,
+    init_options = {
+      extendedClientCapabilities = jdtls.extendedClientCapabilities,
+    },
     settings = {
       java = {
         signatureHelp = { enabled = true },
