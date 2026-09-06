@@ -47,7 +47,7 @@ vitest_adapter.root = function(path)
 end
 
 local gtest_adapter
-if pcall(vim.treesitter.language.add, "cpp") then
+if pcall(vim.treesitter.language.inspect, "cpp") then
   gtest_adapter = require("neotest-gtest").setup({
     root = require("neotest.lib").files.match_root_pattern("CMakeLists.txt", "compile_commands.json", ".git"),
     mappings = { configure = "C" },

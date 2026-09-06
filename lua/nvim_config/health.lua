@@ -98,7 +98,7 @@ local function check_executable(command, purpose, optional)
 end
 
 local function check_treesitter_parser(language, purpose)
-  local ok = pcall(vim.treesitter.language.add, language)
+  local ok = pcall(vim.treesitter.language.inspect, language)
   if ok then
     vim.health.ok(string.format("%s parser (%s)", language, purpose))
   else
