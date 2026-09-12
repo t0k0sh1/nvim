@@ -62,6 +62,7 @@ local specs = {
   { src = "https://github.com/folke/which-key.nvim", name = "which-key" },
   { src = "https://github.com/iamcco/markdown-preview.nvim", name = "markdown-preview" },
   { src = "https://github.com/Jezda1337/nvim-html-css", name = "html-css" },
+  { src = "https://github.com/martindur/zdiff.nvim", name = "zdiff" },
 }
 
 vim.api.nvim_create_autocmd("PackChanged", {

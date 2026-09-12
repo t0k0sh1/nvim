@@ -45,6 +45,7 @@ require("plugins.hop")
 require("plugins.treesitter")
 require("plugins.gitsigns")
 require("plugins.which-key")
+require("plugins.zdiff")
 
 -- load coding plugins
 require("plugins.copilot")
