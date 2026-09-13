@@ -14,6 +14,7 @@ local parsers = {
   "toml",
   "lua",
   "java",
+  "kotlin",
   "markdown",
   "markdown_inline",
 }
@@ -44,6 +45,7 @@ vim.api.nvim_create_autocmd("FileType", {
     "toml",
     "lua",
     "java",
+    "kotlin",
     "markdown",
   },
   callback = function(args)

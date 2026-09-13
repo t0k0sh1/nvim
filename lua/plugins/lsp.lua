@@ -151,6 +151,9 @@ if vim.lsp.config then
   -- C / C++
   vim.lsp.config("clangd", {})
 
+  -- Kotlin
+  vim.lsp.config("kotlin_language_server", {})
+
   -- Prefer Biome over ESLint when the project has a Biome configuration.
   vim.lsp.config("biome", {})
 
@@ -199,6 +202,7 @@ if vim.lsp.config then
     "rust_analyzer",
     "gopls",
     "clangd",
+    "kotlin_language_server",
     "biome",
     "oxlint",
     "eslint",

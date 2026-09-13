@@ -43,6 +43,7 @@ local specs = {
   { src = "https://github.com/nvim-neotest/nvim-nio", name = "nvim-nio" },
   { src = "https://github.com/nvim-neotest/neotest", name = "neotest" },
   { src = "https://github.com/rcasia/neotest-java", name = "neotest-java" },
+  { src = "https://github.com/codymikol/neotest-kotlin", name = "neotest-kotlin" },
   { src = "https://github.com/nvim-neotest/neotest-python", name = "neotest-python" },
   { src = "https://github.com/rouge8/neotest-rust", name = "neotest-rust" },
   { src = "https://github.com/nvim-neotest/neotest-go", name = "neotest-go" },

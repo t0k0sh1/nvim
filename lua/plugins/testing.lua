@@ -114,6 +114,7 @@ end
 
 local adapters = {
   require("neotest-java")({}),
+  require("neotest-kotlin"),
   require("neotest-python")({
     runner = "pytest",
     python = python_command,
