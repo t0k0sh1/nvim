@@ -152,7 +152,10 @@ if vim.lsp.config then
   vim.lsp.config("clangd", {})
 
   -- Kotlin
-  vim.lsp.config("kotlin_language_server", {})
+  -- Official JetBrains server; the Homebrew cask installs it as `kotlin-lsp`.
+  vim.lsp.config("kotlin_lsp", {
+    cmd = { "kotlin-lsp", "--stdio" },
+  })
 
   -- Prefer Biome over ESLint when the project has a Biome configuration.
   vim.lsp.config("biome", {})
@@ -202,7 +205,7 @@ if vim.lsp.config then
     "rust_analyzer",
     "gopls",
     "clangd",
-    "kotlin_language_server",
+    "kotlin_lsp",
     "biome",
     "oxlint",
     "eslint",

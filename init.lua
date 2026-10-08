@@ -50,6 +50,7 @@ require("plugins.zdiff")
 -- load coding plugins
 require("plugins.copilot")
 require("plugins.lsp")
+require("core.file_move")
 require("plugins.conform")
 require("plugins.lint")
 require("plugins.html-css")
