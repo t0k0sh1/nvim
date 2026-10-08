@@ -141,7 +141,7 @@ conform.setup({
     python = { "ruff_organize_imports", "ruff_format" },
     lua = { "stylua" },
     rust = { "rustfmt" },
-    java = { "google-java-format" },
+    java = { "palantir-java-format" },
     markdown = { "prettierd", "prettier", stop_after_first = true },
   },
   formatters = {

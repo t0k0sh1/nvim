@@ -57,7 +57,7 @@ local groups = {
     name = "Formatters and linters",
     tools = {
       { "clang-format", "C/C++ formatting" },
-      { "google-java-format", "Java formatting" },
+      { "palantir-java-format", "Java formatting" },
       { "markuplint", "HTML and JSX/TSX linting" },
       { "markdownlint-cli2", "Markdown linting" },
       { "prettier", "web format fallback" },

@@ -3,7 +3,7 @@
 This project exercises the Java development features in this Neovim configuration:
 
 - Eclipse JDT Language Server diagnostics, completion, and imports
-- google-java-format formatting on save
+- palantir-java-format formatting on save
 - Neotest with JUnit and the Gradle Wrapper
 - JaCoCo line and branch coverage rendered as line backgrounds
 
