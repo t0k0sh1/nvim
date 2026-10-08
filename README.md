@@ -30,6 +30,29 @@ The script uses `apt-get` for system packages. Tools unavailable or too old in
 Ubuntu's repositories are installed from their official distribution channels
 into the user account. Add `~/.local/bin` to the shell `PATH` after setup.
 
+### Java formatter (palantir-java-format)
+
+Java files are formatted with `palantir-java-format`, which has no Homebrew
+formula or apt package. Neither install script above sets it up, so run this on
+each machine (macOS and Linux, requires `java` and `curl`):
+
+```sh
+./scripts/install-palantir-java-format.sh
+```
+
+The script downloads the jar and its runtime dependencies from Maven Central
+into `~/.local/share/palantir-java-format/lib` and writes a wrapper to
+`~/.local/bin/palantir-java-format`. Add `~/.local/bin` to the shell `PATH`.
+
+- Set `PALANTIR_JAVA_FORMAT_VERSION` to install another release. Runtime
+  dependency versions are pinned in the script, so check the release's POM
+  when bumping the version.
+- The wrapper passes the `--add-exports jdk.compiler/...` options the formatter
+  needs on modern JDKs. A startup of about 0.3 seconds fits conform's
+  1000 ms save timeout.
+- A `NoClassDefFoundError` at startup means a dependency jar is missing from
+  `lib`; rerun the script.
+
 ### Verify the environment
 
 Open Neovim in the project you want to inspect and run:
