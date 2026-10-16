@@ -31,6 +31,8 @@ vim.opt.backup = false
 
 -- UI settings
 vim.opt.cmdheight = 0
+-- suppress the "written" message that triggers hit-enter prompts
+vim.opt.shortmess:append("W")
 vim.opt.laststatus = 3
 vim.opt.mouse = ""
 

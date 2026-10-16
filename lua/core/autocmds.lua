@@ -58,7 +58,7 @@ local function save_buffer(bufnr)
   end
 
   local ok, error_message = pcall(vim.api.nvim_buf_call, bufnr, function()
-    vim.cmd("update")
+    vim.cmd("silent update")
   end)
   if not ok then
     vim.notify("Auto-save failed: " .. tostring(error_message), vim.log.levels.ERROR)
