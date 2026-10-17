@@ -82,6 +82,12 @@ keymap.set("n", "<leader>ba", ":%bd | enew<CR>", opts)
 keymap.set("n", "n", "nzz", opts)
 keymap.set("n", "N", "Nzz", opts)
 
+-- search the word under the cursor without jumping (start `cgn` from the current match)
+keymap.set("n", "<leader>*", function()
+  vim.fn.setreg("/", "\\<" .. vim.fn.expand("<cword>") .. "\\>")
+  vim.o.hlsearch = true
+end, { desc = "Search word without jumping" })
+
 -- cancel search highlighting with ESC
 keymap.set("n", "<ESC>", ":nohlsearch<Bar>:echo<CR>", opts)
 
