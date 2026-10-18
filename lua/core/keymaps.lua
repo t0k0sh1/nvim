@@ -138,13 +138,15 @@ end
 -- nvim-telescope/telescope.nvim
 local builtin = require("telescope.builtin")
 
--- find files
+-- find files, respecting .gitignore but always including .env* files
 vim.keymap.set("n", "<leader>ff", function()
   builtin.find_files({
     find_command = {
       "sh",
       "-c",
-      "fd --type f --color never --strip-cwd-prefix --exclude __init__.py",
+      "(fd --type f --color never --strip-cwd-prefix --exclude __init__.py; "
+        .. "fd --type f --hidden --no-ignore --glob --color never --strip-cwd-prefix "
+        .. "--exclude node_modules '.env*') | awk '!seen[$0]++'",
     },
   })
 end, { desc = "Find Files" })
