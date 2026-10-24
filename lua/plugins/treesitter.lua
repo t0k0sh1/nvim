@@ -1,6 +1,7 @@
 local parsers = {
   "c",
   "cpp",
+  "commonlisp",
   "rust",
   "go",
   "python",
@@ -30,6 +31,7 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = {
     "c",
     "cpp",
+    "lisp",
     "rust",
     "go",
     "python",

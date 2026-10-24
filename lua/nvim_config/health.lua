@@ -16,6 +16,7 @@ local groups = {
       { "bash-language-server", "Shell" },
       { "biome", "Biome projects" },
       { "clangd", "C/C++" },
+      { "cl-lsp", "Common Lisp (install with Roswell; see README)" },
       { "docker-language-server", "Docker" },
       { "gopls", "Go" },
       { "jdtls", "Java" },
@@ -362,6 +363,7 @@ function M.check()
 
   vim.health.start("Tree-sitter parsers")
   check_treesitter_parser("cpp", "GoogleTest discovery")
+  check_treesitter_parser("commonlisp", "Common Lisp highlighting")
 
   vim.health.start("Current project")
   check_current_project()

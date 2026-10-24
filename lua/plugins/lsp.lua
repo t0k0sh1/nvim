@@ -151,6 +151,13 @@ if vim.lsp.config then
   -- C / C++
   vim.lsp.config("clangd", {})
 
+  -- Common Lisp (installed separately with Roswell).
+  vim.lsp.config("cl_lsp", {
+    cmd = { "cl-lsp" },
+    filetypes = { "lisp" },
+    root_markers = { ".git" },
+  })
+
   -- Kotlin
   -- Official JetBrains server; the Homebrew cask installs it as `kotlin-lsp`.
   vim.lsp.config("kotlin_lsp", {
@@ -205,6 +212,7 @@ if vim.lsp.config then
     "rust_analyzer",
     "gopls",
     "clangd",
+    "cl_lsp",
     "kotlin_lsp",
     "biome",
     "oxlint",

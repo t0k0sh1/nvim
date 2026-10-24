@@ -77,6 +77,26 @@ match the project. Examples include `pytest` and `pytest-cov` in a uv project,
 Vitest and its coverage provider in a JavaScript project, GoogleTest in a CMake
 project, and JaCoCo configured through a project's Gradle wrapper.
 
+### Common Lisp
+
+Common Lisp buffers (`lisp` filetype, including `.lisp`, `.lsp`, `.cl`, and
+`.asd`) use CL-LSP and the `commonlisp` Tree-sitter parser.
+
+Install [Roswell](https://github.com/roswell/roswell/wiki/Installation), then
+follow the [CL-LSP installation instructions](https://github.com/cxxxr/cl-lsp):
+
+```sh
+ros install lem-project/lem cxxxr/cl-lsp
+export PATH="$HOME/.roswell/bin:$PATH"
+```
+
+Keep that PATH entry in your shell configuration so Neovim can find `cl-lsp`.
+The macOS and Ubuntu setup scripts do not install Roswell or CL-LSP.
+Restart Neovim and run `:TreeSitterInstallConfigured` to install the parser,
+then open a Common Lisp file. `:checkhealth nvim_config` checks the language
+server executable and parser. CL-LSP is enabled for Git projects and standalone
+files; `:checkhealth vim.lsp` shows whether it attached.
+
 ### TypeScript versions
 
 The TypeScript language server is selected from the project's local `tsc`:
